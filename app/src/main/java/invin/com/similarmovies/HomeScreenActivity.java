@@ -1,160 +1,206 @@
 package invin.com.similarmovies;
 
-import invin.com.similarmovies.util.SystemUiHider;
-
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
+import android.os.StrictMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
+ * Activity to display the home screen of the App
  */
 public class HomeScreenActivity extends Activity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
 
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+    private static final String TAG_MOVIES = "movies";
+    private static final String TAG_ID = "id";
 
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
+    public final static String EXTRA_MESSAGE;
+    static{
+        EXTRA_MESSAGE = "com.invin.similarmovies.MESSAGE";
+    }
 
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+    //Movies JSONArray
+    private JSONArray moviesJSON = null;
 
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+    private ArrayList<HashMap<String, String>> movieSearchResult;
+
+    private String apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
+    private String apiMovieSearchQueryAppender = ".json?q=";
+    private String apiMovieSearchConnector = "&page_limit=10&page=1&apikey=";
+    private String apiKey = "TODO:ReplaceThisKeyWithExternalResource";
+
+    private String errorMessage = "";
+    private String forwardSlash = "/";
+    private String movieToSearchFor = "";
+
+    private int numberOfMoviesFound = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_home_screen);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        if (Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode
+                    .ThreadPolicy
+                    .Builder()
+                    .permitAll()
+                    .build();
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
-
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0) {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible ? 0 : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        } else {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-                        }
-
-                        if (visible && AUTO_HIDE) {
-                            // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
-
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
-                }
-            }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+            StrictMode.setThreadPolicy(policy);
+        }
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+     * Called when the user clicks the 'Search' button
+     * This will retrieve the movie ID of the entered movie & send that to the next activity
+     * */
+    public void sendMovieID(View view) {
+        EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
+        String movieSearchResultJSON = "";
+        String movieSearchResultID = "id";
+
+        movieSearchResult =  new ArrayList<HashMap<String, String>>();
+        movieToSearchFor = editTextMovieName.getText().toString();
+        movieToSearchFor = movieToSearchFor.replace(' ', '+');
+
+        movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor);
+
+        if (movieSearchResultJSON != null) {
+            try {
+                JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
+
+                // Get the "Movies" JSON Array Node
+                moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
+                numberOfMoviesFound = moviesJSON.length();
+
+                if (numberOfMoviesFound == 0){
+                    errorMessage.concat(":Err:NoSuchMovie:");
+                    movieSearchResultID = "0";
+                    Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+                    startActivity(intentToShowNoResults);
+                }
+                else if(numberOfMoviesFound == 1){
+                    JSONObject movieJSONObj = moviesJSON.getJSONObject(1);
+                    movieSearchResultID = movieJSONObj.getString(TAG_ID);
+                    Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                    intentSendMovieID.putExtra(EXTRA_MESSAGE, movieSearchResultID);
+                    startActivity(intentSendMovieID);
+                }
+                else{
+                    ArrayList<String> movieSearchResultIDs = new ArrayList<>();
+                    for (int iterateThroughMoviesFound = 0; iterateThroughMoviesFound < numberOfMoviesFound; iterateThroughMoviesFound++) {
+                        JSONObject movieJSONObj = moviesJSON.getJSONObject(iterateThroughMoviesFound);
+                        movieSearchResultIDs.add(movieJSONObj.getString(TAG_ID));
+                    }
+                    Intent intentSendMovieIDs = new Intent(this, DisplayMoviesForSelectionActivity.class);
+                    Bundle movieIDBundle = new Bundle();
+                    String[] movieSearchResultIDStringArray = movieSearchResultIDs.toArray(new String[movieSearchResultIDs.size()]);
+                    movieIDBundle.putStringArray(EXTRA_MESSAGE, movieSearchResultIDStringArray);
+                    intentSendMovieIDs.putExtras(movieIDBundle);
+                    startActivity(intentSendMovieIDs);
+                }
+            } catch (JSONException e) {
+                //TODO: Implement better error handling
+                errorMessage.concat(":Err:JSONException:");
             }
-            return false;
+        } else {
+            errorMessage.concat(":Err:NoData:");
+            Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+            startActivity(intentToShowNoResults);
         }
-    };
+    }
 
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mSystemUiHider.hide();
+    private String returnSearchResultJSON(String movieToSearchFor) {
+        HttpClient defaultHTTPClient = new DefaultHttpClient();
+
+        StringBuilder apiURLBuilder = new StringBuilder();
+        apiURLBuilder.append(apiURLPrepender);
+        apiURLBuilder.append(apiMovieSearchQueryAppender);
+        apiURLBuilder.append(movieToSearchFor);
+        apiURLBuilder.append(apiMovieSearchConnector);
+        apiURLBuilder.append(apiKey);
+
+        String apiURL = apiURLBuilder.toString();
+        String apiResponse = "";
+
+        InputStream inputStreamFromAPIResponse = null;
+
+        HttpGet movieSearchHTTPRequest = new HttpGet(apiURL);
+
+        HttpResponse movieSearchHTTPResponse;
+        try {
+            movieSearchHTTPResponse = defaultHTTPClient.execute(movieSearchHTTPRequest);
+            if(movieSearchHTTPResponse.equals(null)){
+                apiResponse = ":Err:NullResponse:";
+            }
+            else{
+                inputStreamFromAPIResponse = movieSearchHTTPResponse.getEntity().getContent();
+                if ("gzip".equals(movieSearchHTTPResponse.getEntity().getContentEncoding())){
+                    inputStreamFromAPIResponse = new GZIPInputStream(inputStreamFromAPIResponse);
+                }
+                InputStreamReader apiResponseInputStreamReader = new InputStreamReader(inputStreamFromAPIResponse);
+                StringBuilder inputStreamStringBuilder = new StringBuilder();
+                BufferedReader inputStreamBufferedReader = new BufferedReader(apiResponseInputStreamReader);
+                String inputRead = inputStreamBufferedReader.readLine();
+
+                while(inputRead != null) {
+                    inputStreamStringBuilder.append(inputRead);
+                    inputRead = inputStreamBufferedReader.readLine();
+                }
+
+                apiResponse = inputStreamStringBuilder.toString();
+            }
+        } catch (ClientProtocolException e) {
+            errorMessage.concat(":Err:ClientProtocolException:");
+        } catch (IOException e) {
+            errorMessage.concat(":Err:IOException:");
         }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+        finally {
+            return apiResponse;
+        }
     }
 }

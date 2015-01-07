@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/linear_layout_padding_top"
+    android:paddingLeft="@dimen/linear_layout_padding_left"
+    android:paddingRight="@dimen/linear_layout_padding_right" >
+
+    <TextView
+        android:id="@+id/movie_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dip"
+        android:textColor="#66000000"
+        android:textStyle="bold" />
+</LinearLayout>

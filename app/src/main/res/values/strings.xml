@@ -2,7 +2,15 @@
 <resources>
 
     <string name="app_name">SimilarMovies</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="hello_world">Hello World!</string>
+    <string name="action_settings">Settings</string>
+    <string name="text_input_hint">Enter Movie Name...</string>
+    <string name="text_no_results">No Results</string>
+    <string name="button_search">Look for Similar Movies</string>
+    <string name="button_return">Return</string>
+    <string name="title_activity_home_screen">HomeScreenActivity</string>
+    <string name="title_activity_display_similar">SimilarMoviesListActivity</string>
+    <string name="title_activity_no_results">NoResultsActivity</string>
+    <string name="title_activity_display_movies_for_selection">DisplayMoviesForSelection</string>
 
 </resources>
