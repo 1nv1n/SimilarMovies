@@ -17,7 +17,7 @@
         android:layout_height="475dp"/>
 
     <Button
-        android:id="@+id/returnButton"
+        android:id="@+id/returnButtonFromSimilarMoviesList"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:text="@string/button_return"

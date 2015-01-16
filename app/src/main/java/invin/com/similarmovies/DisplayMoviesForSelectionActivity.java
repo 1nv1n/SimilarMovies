@@ -4,6 +4,8 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 
@@ -28,6 +30,13 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_movies_for_selection);
+
+        Button returnButton = (Button)findViewById(R.id.returnButtonFromMoviesForSelectionList);
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         Bundle movieIDBundle = this.getIntent().getExtras();
         String[] movieSearchResultIDStringArray = movieIDBundle.getStringArray(EXTRA_MESSAGE);

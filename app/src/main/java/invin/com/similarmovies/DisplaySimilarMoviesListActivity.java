@@ -1,6 +1,7 @@
 package invin.com.similarmovies;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.app.ListActivity;
 import android.os.Build;
@@ -26,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
@@ -48,7 +50,6 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
     private String apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
     private String apiSimilarConnector = "similar.json?apikey=";
-    private String apiKey = "zt6n683wkh3ngg9893ze6c7k";
 
     private String errorMessage = "";
     private String forwardSlash = "/";
@@ -61,7 +62,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
         setContentView(R.layout.activity_display_similar_movies_list);
 
-        Button returnButton = (Button)findViewById(R.id.returnButton);
+        Button returnButton = (Button)findViewById(R.id.returnButtonFromSimilarMoviesList);
         returnButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
@@ -84,11 +85,11 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
         // Get the movie ID passed in from the Home Screen
         Intent intent = getIntent();
-        String movieSearchResultID = intent.getStringExtra(HomeScreenActivity.EXTRA_MESSAGE);
+        String movieSearchResultID = intent.getStringExtra(HomeScreenActivity.INTENT_MOVIE);
+        String apiKey = intent.getStringExtra(HomeScreenActivity.INTENT_KEY);
 
-        String similarMoviesJSON = "movies";
-
-        similarMoviesJSON = returnSimilarMoviesJSON(movieSearchResultID.trim());
+        String similarMoviesJSON = returnSimilarMoviesJSON(movieSearchResultID.trim(), apiKey);
+        //apiKey = returnRottenTomatoesAPIKeyFromAssets();
 
         if (similarMoviesJSON != null) {
             try {
@@ -165,7 +166,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    private String returnSimilarMoviesJSON(String movieID) {
+    private String returnSimilarMoviesJSON(String movieID, String apiKey) {
         HttpClient defaultHTTPClient = new DefaultHttpClient();
 
         StringBuilder apiURLBuilder = new StringBuilder();

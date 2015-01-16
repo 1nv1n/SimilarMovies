@@ -1,4 +1,5 @@
 .gradle
+/app/src/main/assets/key.properties
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries

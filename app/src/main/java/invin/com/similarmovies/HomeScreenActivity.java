@@ -2,6 +2,7 @@ package invin.com.similarmovies;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -23,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
@@ -35,9 +37,11 @@ public class HomeScreenActivity extends Activity {
     private static final String TAG_MOVIES = "movies";
     private static final String TAG_ID = "id";
 
-    public final static String EXTRA_MESSAGE;
+    public final static String INTENT_MOVIE;
+    public final static String INTENT_KEY;
     static{
-        EXTRA_MESSAGE = "com.invin.similarmovies.MESSAGE";
+        INTENT_MOVIE = "com.invin.similarmovies.MESSAGE";
+        INTENT_KEY = "com.invin.similarmovies.KEY";
     }
 
     //Movies JSONArray
@@ -48,10 +52,8 @@ public class HomeScreenActivity extends Activity {
     private String apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
     private String apiMovieSearchQueryAppender = ".json?q=";
     private String apiMovieSearchConnector = "&page_limit=10&page=1&apikey=";
-    private String apiKey = "TODO:ReplaceThisKeyWithExternalResource";
 
     private String errorMessage = "";
-    private String forwardSlash = "/";
     private String movieToSearchFor = "";
 
     private int numberOfMoviesFound = 0;
@@ -99,47 +101,55 @@ public class HomeScreenActivity extends Activity {
      * This will retrieve the movie ID of the entered movie & send that to the next activity
      * */
     public void sendMovieID(View view) {
+        String apiKey = returnRottenTomatoesAPIKeyFromAssets();
+
         EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
-        String movieSearchResultJSON = "";
-        String movieSearchResultID = "id";
+        String movieSearchResultJSON;
+        String movieSearchResultID;
 
-        movieSearchResult =  new ArrayList<HashMap<String, String>>();
-        movieToSearchFor = editTextMovieName.getText().toString();
-        movieToSearchFor = movieToSearchFor.replace(' ', '+');
+        movieSearchResult = new ArrayList<HashMap<String, String>>();
+        movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
 
-        movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor);
+        movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
 
         if (movieSearchResultJSON != null) {
             try {
                 JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
+                JSONObject movieJSONObj = new JSONObject();
 
                 // Get the "Movies" JSON Array Node
                 moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
                 numberOfMoviesFound = moviesJSON.length();
 
+                System.out.println(moviesJSON);
+                System.out.println(numberOfMoviesFound);
+
                 if (numberOfMoviesFound == 0){
                     errorMessage.concat(":Err:NoSuchMovie:");
-                    movieSearchResultID = "0";
                     Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
                     startActivity(intentToShowNoResults);
                 }
                 else if(numberOfMoviesFound == 1){
-                    JSONObject movieJSONObj = moviesJSON.getJSONObject(1);
+                    System.out.println("Single Movie Found");
+                    movieJSONObj = moviesJSON.getJSONObject(0);
+                    System.out.println(movieJSONObj.toString());
                     movieSearchResultID = movieJSONObj.getString(TAG_ID);
+                    System.out.println(movieSearchResultID);
                     Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                    intentSendMovieID.putExtra(EXTRA_MESSAGE, movieSearchResultID);
+                    intentSendMovieID.putExtra(INTENT_MOVIE, movieSearchResultID);
+                    intentSendMovieID.putExtra(INTENT_KEY, apiKey);
                     startActivity(intentSendMovieID);
                 }
                 else{
                     ArrayList<String> movieSearchResultIDs = new ArrayList<>();
-                    for (int iterateThroughMoviesFound = 0; iterateThroughMoviesFound < numberOfMoviesFound; iterateThroughMoviesFound++) {
-                        JSONObject movieJSONObj = moviesJSON.getJSONObject(iterateThroughMoviesFound);
+                    for (int iterateThroughMovies = 0; iterateThroughMovies < numberOfMoviesFound; iterateThroughMovies++) {
+                        movieJSONObj = moviesJSON.getJSONObject(iterateThroughMovies);
                         movieSearchResultIDs.add(movieJSONObj.getString(TAG_ID));
                     }
                     Intent intentSendMovieIDs = new Intent(this, DisplayMoviesForSelectionActivity.class);
                     Bundle movieIDBundle = new Bundle();
                     String[] movieSearchResultIDStringArray = movieSearchResultIDs.toArray(new String[movieSearchResultIDs.size()]);
-                    movieIDBundle.putStringArray(EXTRA_MESSAGE, movieSearchResultIDStringArray);
+                    movieIDBundle.putStringArray(INTENT_MOVIE, movieSearchResultIDStringArray);
                     intentSendMovieIDs.putExtras(movieIDBundle);
                     startActivity(intentSendMovieIDs);
                 }
@@ -154,7 +164,7 @@ public class HomeScreenActivity extends Activity {
         }
     }
 
-    private String returnSearchResultJSON(String movieToSearchFor) {
+    private String returnSearchResultJSON(String movieToSearchFor, String apiKey) {
         HttpClient defaultHTTPClient = new DefaultHttpClient();
 
         StringBuilder apiURLBuilder = new StringBuilder();
@@ -203,4 +213,35 @@ public class HomeScreenActivity extends Activity {
             return apiResponse;
         }
     }
+
+    private String returnRottenTomatoesAPIKeyFromAssets() {
+        AssetManager assetManager = getAssets();
+        BufferedReader bufferedAssetsFileReader = null;
+        String propertiesFileName = "key.properties";
+        String[] keyValue = new String[1];
+
+        StringBuilder keyBuilder = new StringBuilder();
+        InputStream propertiesReader = null;
+        try {
+            propertiesReader = assetManager.open(propertiesFileName);
+            bufferedAssetsFileReader = new BufferedReader(new InputStreamReader(propertiesReader, "UTF-8"));
+
+            String str;
+            while ((str=bufferedAssetsFileReader.readLine()) != null) {
+                if(str.contains("RottenTomatoesAPIKey")){
+                    keyValue = str.split("=");
+                    keyBuilder.append(keyValue[1]);
+                }
+            }
+
+            bufferedAssetsFileReader.close();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return keyBuilder.toString();
+    }
+
 }
