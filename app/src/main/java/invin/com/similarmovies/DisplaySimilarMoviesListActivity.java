@@ -1,7 +1,6 @@
 package invin.com.similarmovies;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.app.ListActivity;
 import android.os.Build;
@@ -27,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
@@ -177,12 +175,11 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         apiURLBuilder.append(apiSimilarConnector);
         apiURLBuilder.append(apiKey);
 
-        String apiURL = apiURLBuilder.toString();
         String apiResponse = "";
 
         InputStream inputStreamFromAPIResponse = null;
 
-        HttpGet similarMoviesHTTPRequest = new HttpGet(apiURL);
+        HttpGet similarMoviesHTTPRequest = new HttpGet(apiURLBuilder.toString());
 
         HttpResponse similarMoviesHTTPResponse;
         try {
@@ -192,7 +189,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
             }
             else{
                 inputStreamFromAPIResponse = similarMoviesHTTPResponse.getEntity().getContent();
-                if ("gzip".equals(similarMoviesHTTPResponse.getEntity().getContentEncoding())){
+                if ("gzip".equals(similarMoviesHTTPResponse.getEntity().getContentEncoding().toString())){
                     inputStreamFromAPIResponse = new GZIPInputStream(inputStreamFromAPIResponse);
                 }
                 InputStreamReader apiResponseInputStreamReader = new InputStreamReader(inputStreamFromAPIResponse);

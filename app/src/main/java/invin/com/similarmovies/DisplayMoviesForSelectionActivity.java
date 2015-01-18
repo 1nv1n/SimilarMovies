@@ -13,15 +13,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Activity to display all the movies found by the search
+ * Activity to display all the movies found by a search of RottenTomatoes
  */
 public class DisplayMoviesForSelectionActivity extends ListActivity {
 
     private static final String TAG_TITLE = "title";
-    public final static String EXTRA_MESSAGE;
-    static{
-        EXTRA_MESSAGE = "com.invin.similarmovies.MESSAGE";
-    }
 
     //Hashmap for ListView
     ArrayList<HashMap<String, String>> movieList;
@@ -39,13 +35,13 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         });
 
         Bundle movieIDBundle = this.getIntent().getExtras();
-        String[] movieSearchResultIDStringArray = movieIDBundle.getStringArray(EXTRA_MESSAGE);
+        String[] movieSearchResultIDStringArray = movieIDBundle.getStringArray(HomeScreenActivity.INTENT_MOVIE);
 
         movieList = new ArrayList<HashMap<String, String>>();
 
-        for(int numberOfMovies = 0; numberOfMovies < movieSearchResultIDStringArray.length; numberOfMovies++){
+        for (String aMovieSearchResultIDStringArray : movieSearchResultIDStringArray) {
             HashMap<String, String> movieHashMap = new HashMap<String, String>();
-            movieHashMap.put(TAG_TITLE, movieSearchResultIDStringArray[numberOfMovies]);
+            movieHashMap.put(TAG_TITLE, aMovieSearchResultIDStringArray);
             movieList.add(movieHashMap);
         }
 

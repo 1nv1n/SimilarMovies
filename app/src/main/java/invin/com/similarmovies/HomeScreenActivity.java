@@ -7,9 +7,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,7 +37,10 @@ import java.util.zip.GZIPInputStream;
  */
 public class HomeScreenActivity extends Activity {
 
+    private ProgressBar spinner;
+
     private static final String TAG_MOVIES = "movies";
+    private static final String TAG_TITLE = "title";
     private static final String TAG_ID = "id";
 
     public final static String INTENT_MOVIE;
@@ -72,13 +78,19 @@ public class HomeScreenActivity extends Activity {
 
             StrictMode.setThreadPolicy(policy);
         }
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        spinner = (ProgressBar)findViewById(R.id.homeScreenProgressBar);
+        spinner.setVisibility(View.GONE);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        MenuInflater inflater = getMenuInflater();
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -86,84 +98,102 @@ public class HomeScreenActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                openActionSettings();
+                return true;
+            case R.id.action_about:
+                openActionAbout();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
      * Called when the user clicks the 'Search' button
      * This will retrieve the movie ID of the entered movie & send that to the next activity
-     * */
-    public void sendMovieID(View view) {
-        String apiKey = returnRottenTomatoesAPIKeyFromAssets();
+     *
+     * @param view
+     */
+     public void sendMovieID(View view) {
 
-        EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
-        String movieSearchResultJSON;
-        String movieSearchResultID;
+         spinner.setVisibility(View.VISIBLE);
 
-        movieSearchResult = new ArrayList<HashMap<String, String>>();
-        movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
+         String apiKey = returnRottenTomatoesAPIKeyFromAssets();
 
-        movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
+         EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
+         String movieSearchResultJSON;
+         String movieSearchResultID;
 
-        if (movieSearchResultJSON != null) {
-            try {
-                JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
-                JSONObject movieJSONObj = new JSONObject();
+         movieSearchResult = new ArrayList<HashMap<String, String>>();
+         movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
 
-                // Get the "Movies" JSON Array Node
-                moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
-                numberOfMoviesFound = moviesJSON.length();
+         movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
 
-                System.out.println(moviesJSON);
-                System.out.println(numberOfMoviesFound);
+         if (movieSearchResultJSON != null) {
+             try {
+                 JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
+                 JSONObject movieJSONObj = new JSONObject();
 
-                if (numberOfMoviesFound == 0){
-                    errorMessage.concat(":Err:NoSuchMovie:");
-                    Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-                    startActivity(intentToShowNoResults);
-                }
-                else if(numberOfMoviesFound == 1){
-                    System.out.println("Single Movie Found");
-                    movieJSONObj = moviesJSON.getJSONObject(0);
-                    System.out.println(movieJSONObj.toString());
-                    movieSearchResultID = movieJSONObj.getString(TAG_ID);
-                    System.out.println(movieSearchResultID);
-                    Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                    intentSendMovieID.putExtra(INTENT_MOVIE, movieSearchResultID);
-                    intentSendMovieID.putExtra(INTENT_KEY, apiKey);
-                    startActivity(intentSendMovieID);
-                }
-                else{
-                    ArrayList<String> movieSearchResultIDs = new ArrayList<>();
-                    for (int iterateThroughMovies = 0; iterateThroughMovies < numberOfMoviesFound; iterateThroughMovies++) {
-                        movieJSONObj = moviesJSON.getJSONObject(iterateThroughMovies);
-                        movieSearchResultIDs.add(movieJSONObj.getString(TAG_ID));
-                    }
-                    Intent intentSendMovieIDs = new Intent(this, DisplayMoviesForSelectionActivity.class);
-                    Bundle movieIDBundle = new Bundle();
-                    String[] movieSearchResultIDStringArray = movieSearchResultIDs.toArray(new String[movieSearchResultIDs.size()]);
-                    movieIDBundle.putStringArray(INTENT_MOVIE, movieSearchResultIDStringArray);
-                    intentSendMovieIDs.putExtras(movieIDBundle);
-                    startActivity(intentSendMovieIDs);
-                }
-            } catch (JSONException e) {
-                //TODO: Implement better error handling
-                errorMessage.concat(":Err:JSONException:");
-            }
-        } else {
-            errorMessage.concat(":Err:NoData:");
-            Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-            startActivity(intentToShowNoResults);
-        }
-    }
+                 // Get the "Movies" JSON Array Node
+                 moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
+                 numberOfMoviesFound = moviesJSON.length();
 
+                 System.out.println(moviesJSON);
+                 System.out.println(numberOfMoviesFound);
+
+                 if (numberOfMoviesFound == 0){
+                     errorMessage.concat(":Err:NoSuchMovie:");
+                     Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+                     startActivity(intentToShowNoResults);
+                 }
+                 else if(numberOfMoviesFound == 1){
+                     System.out.println("Single Movie Found");
+                     movieJSONObj = moviesJSON.getJSONObject(0);
+                     System.out.println(movieJSONObj.toString());
+                     movieSearchResultID = movieJSONObj.getString(TAG_ID);
+                     System.out.println(movieSearchResultID);
+                     Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                     intentSendMovieID.putExtra(INTENT_MOVIE, movieSearchResultID);
+                     intentSendMovieID.putExtra(INTENT_KEY, apiKey);
+                     startActivity(intentSendMovieID);
+                 }
+                 else{
+                     ArrayList<String> movieSearchResultIDs = new ArrayList<>();
+                     ArrayList<String> movieSearchResultNames = new ArrayList<>();
+
+                     for (int iterateThroughMovies = 0; iterateThroughMovies < numberOfMoviesFound; iterateThroughMovies++) {
+                         movieJSONObj = moviesJSON.getJSONObject(iterateThroughMovies);
+                         movieSearchResultIDs.add(movieJSONObj.getString(TAG_ID));
+                         movieSearchResultNames.add(movieJSONObj.getString(TAG_TITLE));
+                     }
+                     Intent intentSendMovieIDs = new Intent(this, DisplayMoviesForSelectionActivity.class);
+                     Bundle movieIDBundle = new Bundle();
+                     String[] movieSearchResultIDStringArray = movieSearchResultIDs.toArray(new String[movieSearchResultIDs.size()]);
+                     movieIDBundle.putStringArray(INTENT_MOVIE, movieSearchResultIDStringArray);
+                     intentSendMovieIDs.putExtras(movieIDBundle);
+                     startActivity(intentSendMovieIDs);
+                 }
+             } catch (JSONException e) {
+                 //TODO: Implement better error handling
+                 errorMessage.concat(":Err:JSONException:");
+             }
+
+         } else {
+             errorMessage.concat(":Err:NoData:");
+             Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+             startActivity(intentToShowNoResults);
+         }
+     }
+
+    /**
+     * Makes the HTTP call to the API & returns the JSON response as a {@link java.lang.String}
+     *
+     * @param movieToSearchFor
+     * @param apiKey
+     * @return
+     */
     private String returnSearchResultJSON(String movieToSearchFor, String apiKey) {
         HttpClient defaultHTTPClient = new DefaultHttpClient();
 
@@ -214,6 +244,11 @@ public class HomeScreenActivity extends Activity {
         }
     }
 
+    /**
+     *  Returns a {@link java.lang.String} consisting of the RottenTomatoes API Key
+     *  from the assets folder.
+     *  (Assets folder is added through Android Studio, default location)
+    * */
     private String returnRottenTomatoesAPIKeyFromAssets() {
         AssetManager assetManager = getAssets();
         BufferedReader bufferedAssetsFileReader = null;
@@ -244,4 +279,31 @@ public class HomeScreenActivity extends Activity {
         return keyBuilder.toString();
     }
 
+    /**
+     * Handle the 'Settings' action from the Action Bar
+     */
+    public void openActionSettings(){
+        Toast.makeText(
+                getApplicationContext(),
+                "Settings Currently Disabled",
+                Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Handle the 'About' action from the Action Bar
+     */
+    public void openActionAbout(){
+        Toast.makeText(
+                getApplicationContext(),
+                "'About' Currently Disabled",
+                Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Load the Progress Bar Spinner
+     * @param view
+     */
+    public void loadprogressSpinner(View view){
+        spinner.setVisibility(View.VISIBLE);
+    }
 }

@@ -4,6 +4,7 @@
     package="invin.com.similarmovies" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-sdk android:minSdkVersion="11" />
 
     <application
         android:allowBackup="true"

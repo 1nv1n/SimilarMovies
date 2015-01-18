@@ -12,5 +12,7 @@
     <string name="title_activity_display_similar">SimilarMoviesListActivity</string>
     <string name="title_activity_no_results">NoResultsActivity</string>
     <string name="title_activity_display_movies_for_selection">DisplayMoviesForSelection</string>
+    <string name="action_search">Search</string>
+    <string name="action_about">About</string>
 
 </resources>

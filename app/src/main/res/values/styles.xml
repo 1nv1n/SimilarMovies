@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light" />
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
     <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
         <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
     <!--</style>-->
@@ -14,6 +14,23 @@
         <!--<item name="metaButtonBarStyle">@style/ButtonBar</item>-->
         <!--<item name="metaButtonBarButtonStyle">@style/ButtonBarButton</item>-->
     <!--</style>-->
+
+    <style name="CustomActionBarTheme"
+        parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="MyActionBar"
+        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/red_overlay</item>
+
+        <!-- Support library compatibility -->
+        <item name="background">@color/red_overlay</item>
+    </style>
 
     <style name="ButtonBar">
         <item name="android:paddingLeft">2dp</item>
