@@ -79,8 +79,10 @@ public class HomeScreenActivity extends Activity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //Default 'Up - Home' button functionality is intentionally disabled
+        getActionBar().setDisplayHomeAsUpEnabled(false);
 
+        //Create a Loading spinner & leave it hidden until required
         spinner = (ProgressBar)findViewById(R.id.homeScreenProgressBar);
         spinner.setVisibility(View.GONE);
     }
@@ -112,15 +114,19 @@ public class HomeScreenActivity extends Activity {
 
     /**
      * Called when the user clicks the 'Search' button
-     * This will retrieve the movie ID of the entered movie & send that to the next activity
+     * This will attempt to retrieve the movie ID of the entered movie &
+     * send that to the next activity
      *
      * @param view
      */
      public void sendMovieID(View view) {
 
+         //Start the loading spinner as soon as we enter this method
          spinner.setVisibility(View.VISIBLE);
+         //Hide the spinner when we are switching to another activity or leaving the method
 
          String apiKey = returnRottenTomatoesAPIKeyFromAssets();
+         System.out.println(":apiKey:"+apiKey);
 
          EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
          String movieSearchResultJSON;
@@ -130,6 +136,7 @@ public class HomeScreenActivity extends Activity {
          movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
 
          movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
+         System.out.println("movieSearchResultJSON"+movieSearchResultJSON);
 
          if (movieSearchResultJSON != null) {
              try {
@@ -146,6 +153,7 @@ public class HomeScreenActivity extends Activity {
                  if (numberOfMoviesFound == 0){
                      errorMessage.concat(":Err:NoSuchMovie:");
                      Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+                     spinner.setVisibility(View.GONE);
                      startActivity(intentToShowNoResults);
                  }
                  else if(numberOfMoviesFound == 1){
@@ -157,6 +165,7 @@ public class HomeScreenActivity extends Activity {
                      Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
                      intentSendMovieID.putExtra(INTENT_MOVIE, movieSearchResultID);
                      intentSendMovieID.putExtra(INTENT_KEY, apiKey);
+                     spinner.setVisibility(View.GONE);
                      startActivity(intentSendMovieID);
                  }
                  else{
@@ -173,9 +182,12 @@ public class HomeScreenActivity extends Activity {
                      String[] movieSearchResultIDStringArray = movieSearchResultIDs.toArray(new String[movieSearchResultIDs.size()]);
                      movieIDBundle.putStringArray(INTENT_MOVIE, movieSearchResultIDStringArray);
                      intentSendMovieIDs.putExtras(movieIDBundle);
+                     spinner.setVisibility(View.GONE);
                      startActivity(intentSendMovieIDs);
                  }
              } catch (JSONException e) {
+                 spinner.setVisibility(View.GONE);
+
                  //TODO: Implement better error handling
                  errorMessage.concat(":Err:JSONException:");
              }
@@ -183,6 +195,7 @@ public class HomeScreenActivity extends Activity {
          } else {
              errorMessage.concat(":Err:NoData:");
              Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+             spinner.setVisibility(View.GONE);
              startActivity(intentToShowNoResults);
          }
      }
