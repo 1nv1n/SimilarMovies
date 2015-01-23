@@ -160,7 +160,6 @@ public class HomeScreenActivity extends Activity {
              int numberOfMoviesFound;
 
              movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
-             System.out.println("movieSearchResultJSON"+movieSearchResultJSON);
 
              if (movieSearchResultJSON != null) {
                  try {

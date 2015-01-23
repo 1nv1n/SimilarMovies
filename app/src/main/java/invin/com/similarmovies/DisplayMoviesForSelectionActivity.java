@@ -112,9 +112,9 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
 
         //TODO: Implement a logger for debugging
         //Commenting out Toast; Uncomment to serve debugging purposes
-        Toast.makeText(
-                getApplicationContext(),
-                "You clicked " + selectedItem + " at position " + position,
-                Toast.LENGTH_SHORT).show();
+        //Toast.makeText(
+        //        getApplicationContext(),
+        //        "You clicked " + selectedItem + " at position " + position,
+        //        Toast.LENGTH_SHORT).show();
     }
 }
