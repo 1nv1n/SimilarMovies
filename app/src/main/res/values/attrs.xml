@@ -6,10 +6,10 @@
          necessary to support previous API levels. -->
     <declare-styleable
         name="ButtonBarContainerTheme">
-
         <attr
             name="metaButtonBarStyle"
             format="reference" />
+
         <attr
             name="metaButtonBarButtonStyle"
             format="reference" />

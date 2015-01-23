@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/moviesList"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -9,10 +10,10 @@
     android:paddingRight="@dimen/linear_layout_padding_right" >
 
     <TextView
-        android:id="@+id/movie_title"
+        android:id="@+id/movieTitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="2dip"
-        android:textColor="#66000000"
+        android:textColor="@color/black"
         android:textStyle="bold" />
 </LinearLayout>

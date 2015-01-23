@@ -26,5 +26,5 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#66000000"/>
+        android:background="@color/gray_overlay"/>
 </RelativeLayout>

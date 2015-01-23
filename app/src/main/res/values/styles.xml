@@ -3,6 +3,8 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+
+    <!-- Commenting out the original AppTheme -->
     <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
         <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
     <!--</style>-->
@@ -15,6 +17,7 @@
         <!--<item name="metaButtonBarButtonStyle">@style/ButtonBarButton</item>-->
     <!--</style>-->
 
+    <!-- Custom Theme to use DarkActionBar without switching to a higher API -->
     <style name="CustomActionBarTheme"
         parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
@@ -23,7 +26,7 @@
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
-    <!-- ActionBar styles -->
+    <!-- ActionBar Styles -->
     <style name="MyActionBar"
         parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/red_overlay</item>
@@ -32,6 +35,7 @@
         <item name="background">@color/red_overlay</item>
     </style>
 
+    <!-- ButtonBar Styles -->
     <style name="ButtonBar">
         <item name="android:paddingLeft">2dp</item>
         <item name="android:paddingTop">5dp</item>
@@ -39,7 +43,5 @@
         <item name="android:paddingBottom">0dp</item>
         <item name="android:background">@android:drawable/bottom_bar</item>
     </style>
-
-    <style name="ButtonBarButton" />
 
 </resources>

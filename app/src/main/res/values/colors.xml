@@ -1,6 +1,10 @@
 <resources>
 
-    <color name="black_overlay">#66000000</color>
+    <!-- Solids -->
+    <color name="black">#000000</color>
+
+    <!-- Overlays -->
     <color name="red_overlay">#FF0000</color>
+    <color name="gray_overlay">#66000000</color>
 
 </resources>
