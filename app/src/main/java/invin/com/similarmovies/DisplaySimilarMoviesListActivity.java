@@ -166,9 +166,9 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         // as you specify a parent activity in AndroidManifest.xml.
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                openActionSettings();
-                return true;
+//            case R.id.action_settings:
+//                openActionSettings();
+//                return true;
             case R.id.action_about:
                 openActionAbout();
                 return true;
@@ -255,9 +255,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
      * Handle the 'About' action from the Action Bar
      */
     public void openActionAbout(){
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, 'About' Currently Disabled",
-                Toast.LENGTH_SHORT).show();
+        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
+        startActivity(intentToShowAboutActivity);
     }
 }

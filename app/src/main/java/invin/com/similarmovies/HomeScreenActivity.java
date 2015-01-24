@@ -74,7 +74,6 @@ public class HomeScreenActivity extends Activity {
     private String apiMovieSearchQueryAppender = ".json?q=";
     private String apiMovieSearchConnector = "&page_limit=10&page=1&apikey=";
 
-    private String errorMessage;
     private String apiKey;
 
     public HomeScreenActivity() {
@@ -119,9 +118,9 @@ public class HomeScreenActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                openActionSettings();
-                return true;
+//            case R.id.action_settings:
+//                openActionSettings();
+//                return true;
             case R.id.action_about:
                 openActionAbout();
                 return true;
@@ -216,14 +215,14 @@ public class HomeScreenActivity extends Activity {
                      spinner.setVisibility(View.GONE);
                      editTextMovieName.setText("");
                      //TODO: Implement better error handling
-                     errorMessage.concat(":Err:JSONException:");
+                     System.out.println(":Err:JSONException:");
                      //TODO: Implement logging
                  }
 
              } else {
                  spinner.setVisibility(View.GONE);
                  //TODO: Implement better error handling
-                 errorMessage.concat(":Err:NoData:");
+                 System.out.println(":Err:NoData:");
                  //TODO: Implement logging
                  editTextMovieName.setText("");
                  Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
@@ -286,11 +285,11 @@ public class HomeScreenActivity extends Activity {
             }
         } catch (ClientProtocolException e) {
             //TODO: Implement better error handling
-            errorMessage.concat(":Err:ClientProtocolException:"+e);
+            System.out.println(":Err:ClientProtocolException:"+e);
             //TODO: Implement logging
         } catch (IOException e) {
             //TODO: Implement better error handling
-            errorMessage.concat(":Err:IOException:");
+            System.out.println(":Err:IOException:");
             //TODO: Implement logging
         }
         finally {
@@ -328,11 +327,11 @@ public class HomeScreenActivity extends Activity {
             }
         } catch (UnsupportedEncodingException e) {
             //TODO: Implement better error handling
-            errorMessage.concat(":Err:UnsupportedEncodingException:"+e);
+            System.out.println(":Err:UnsupportedEncodingException:"+e);
             //TODO: Implement logging
         } catch (IOException e) {
             //TODO: Implement better error handling
-            errorMessage.concat(":Err:IOException:"+e);
+            System.out.println(":Err:IOException:"+e);
             //TODO: Implement logging
         }
         finally {

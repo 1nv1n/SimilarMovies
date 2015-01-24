@@ -1,6 +1,7 @@
 package invin.com.similarmovies;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,9 +44,9 @@ public class NoResultsActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                openActionSettings();
-                return true;
+//            case R.id.action_settings:
+//                openActionSettings();
+//                return true;
             case R.id.action_about:
                 openActionAbout();
                 return true;
@@ -70,9 +71,7 @@ public class NoResultsActivity extends Activity {
      * Handle the 'About' action from the Action Bar
      */
     public void openActionAbout(){
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, 'About' Currently Disabled",
-                Toast.LENGTH_SHORT).show();
+        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
+        startActivity(intentToShowAboutActivity);
     }
 }
