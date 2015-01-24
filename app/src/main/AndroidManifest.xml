@@ -38,8 +38,7 @@
         </activity>
         <activity
             android:name=".AboutActivity"
-            android:label="@string/title_activity_about_app"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
+            android:label="@string/title_activity_about_app" >
         </activity>
     </application>
 

@@ -357,10 +357,6 @@ public class HomeScreenActivity extends Activity {
      * Handle the 'About' action from the Action Bar
      */
     public void openActionAbout(){
-//        Toast.makeText(
-//                getApplicationContext(),
-//                "Sorry, 'About' Currently Disabled",
-//                Toast.LENGTH_SHORT).show();
           Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
           startActivity(intentToShowAboutActivity);
     }

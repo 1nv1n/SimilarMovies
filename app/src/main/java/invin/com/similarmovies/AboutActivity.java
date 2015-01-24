@@ -1,21 +1,25 @@
 package invin.com.similarmovies;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-
-public class AboutActivity extends ActionBarActivity {
+/**
+ * Display an 'About' screen with some App information
+ */
+public class AboutActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
+        /**
+         * Finish the current activity & return to the previous open activity
+         */
         Button returnButton = (Button)findViewById(R.id.returnButtonFromAboutActivity);
         returnButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -36,13 +40,6 @@ public class AboutActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 }
