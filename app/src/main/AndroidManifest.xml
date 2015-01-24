@@ -30,20 +30,23 @@
         </activity>
 
         <activity
-            android:name=".NoResultsActivity"
-            android:label="@string/title_activity_no_results" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="invin.com.similarmovies.HomeScreenActivity" />
-        </activity>
-
-        <activity
             android:name=".DisplayMoviesForSelectionActivity"
             android:label="@string/title_activity_display_movies_for_selection" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="invin.com.similarmovies.HomeScreenActivity" />
         </activity>
+
+        <activity
+            android:name=".NoResultsActivity"
+            android:label="@string/title_activity_no_results" >
+        </activity>
+
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_about_app" >
+        </activity>
+
     </application>
 
 </manifest>
