@@ -3,6 +3,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+    <!-- android:Theme.Holo.Light.DarkActionBar -->
 
     <!-- Commenting out the original AppTheme -->
     <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
