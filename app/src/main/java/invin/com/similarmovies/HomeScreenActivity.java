@@ -6,12 +6,15 @@ import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -76,6 +79,8 @@ public class HomeScreenActivity extends Activity {
 
     private String apiKey;
 
+    private EditText editTextMovieName;
+
     public HomeScreenActivity() {
         moviesJSON = null;
     }
@@ -102,6 +107,19 @@ public class HomeScreenActivity extends Activity {
         //Create a loading spinner & leave it hidden until required
         spinner = (ProgressBar)findViewById(R.id.homeScreenProgressBar);
         spinner.setVisibility(View.GONE);
+
+        editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
+        editTextMovieName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
+                boolean handledIMEAction = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    searchAndSendMovieDetails(textView);
+                    handledIMEAction = true;
+                }
+                return handledIMEAction;
+            }
+        });
     }
 
     @Override
@@ -118,6 +136,7 @@ public class HomeScreenActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
+            //Commenting out Settings for now.
 //            case R.id.action_settings:
 //                openActionSettings();
 //                return true;
@@ -142,6 +161,7 @@ public class HomeScreenActivity extends Activity {
          spinner.setVisibility(View.VISIBLE);
          //Hide the spinner when we are switching to another activity or otherwise leaving the method
 
+         //Get the API key from the Assets folder
          apiKey = returnRottenTomatoesAPIKeyFromAssets();
 
          if(apiKey.isEmpty()){
@@ -149,84 +169,123 @@ public class HomeScreenActivity extends Activity {
                      getApplicationContext(),
                      "An unexpected error occurred - API key is missing. Please re-install the App",
                      Toast.LENGTH_SHORT).show();
+
+             //Reset the EditText & hide the loading spinner
              spinner.setVisibility(View.GONE);
          }
          else{
-             EditText editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
-             String movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
-             String movieSearchResultJSON;
-             String movieSearchResultID;
-             int numberOfMoviesFound;
+             if(editTextMovieName.getText().toString().isEmpty()){
+                 Toast.makeText(
+                         getApplicationContext(),
+                         "You need to enter something first..",
+                         Toast.LENGTH_SHORT).show();
 
-             movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
-
-             if (movieSearchResultJSON != null) {
-                 try {
-                     JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
-                     JSONObject movieJSONObj;
-
-                     // Get the "Movies" JSON array
-                     moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
-                     numberOfMoviesFound = moviesJSON.length();
-
-                     if (numberOfMoviesFound == 0){
-                         editTextMovieName.setText("");
-                         spinner.setVisibility(View.GONE);
-                         Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-                         startActivity(intentToShowNoResults);
-                     }
-                     else if(numberOfMoviesFound == 1){
-                         movieJSONObj = moviesJSON.getJSONObject(0);
-                         movieSearchResultID = movieJSONObj.getString(TAG_ID);
-
-                         editTextMovieName.setText("");
-                         spinner.setVisibility(View.GONE);
-
-                         Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                         intentSendMovieID.putExtra(INTENT_MOVIE_ID, movieSearchResultID);
-                         intentSendMovieID.putExtra(INTENT_KEY, apiKey);
-                         startActivity(intentSendMovieID);
-                     }
-                     else{
-                         HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<>();
-
-                         for (int currentMovie = 0; currentMovie < numberOfMoviesFound; currentMovie++) {
-                             movieJSONObj = moviesJSON.getJSONObject(currentMovie);
-
-                             List<String> listOfIDsAndNames = new ArrayList<>();
-                             listOfIDsAndNames.add(movieJSONObj.getString(TAG_ID));
-                             listOfIDsAndNames.add(movieJSONObj.getString(TAG_TITLE));
-
-                             movieIDNameHashCodeMap.put(
-                                     movieJSONObj.getString(TAG_TITLE).hashCode(),
-                                     listOfIDsAndNames
-                             );
-                         }
-
-                         editTextMovieName.setText("");
-                         spinner.setVisibility(View.GONE);
-
-                         Intent intentSendMovieIDsAndNames = new Intent(this, DisplayMoviesForSelectionActivity.class);
-                         intentSendMovieIDsAndNames.putExtra(INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
-                         intentSendMovieIDsAndNames.putExtra(INTENT_KEY, apiKey);
-                         startActivity(intentSendMovieIDsAndNames);
-                     }
-                 } catch (JSONException e) {
-                     spinner.setVisibility(View.GONE);
-                     editTextMovieName.setText("");
-                     //TODO: Implement better error handling
-                     System.out.println(":Err:JSONException:");
-                     //TODO: Implement logging
-                 }
-
-             } else {
-                 spinner.setVisibility(View.GONE);
-                 //TODO: Implement better error handling
-                 System.out.println(":Err:NoData:");
-                 //TODO: Implement logging
+                 //Reset the EditText & hide the loading spinner
                  editTextMovieName.setText("");
-                 Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-                 startActivity(intentToShowNoResults);
+                 spinner.setVisibility(View.GONE);
+             }
+             else if(editTextMovieName.getText().toString().length() > 25){
+                 Toast.makeText(
+                         getApplicationContext(),
+                         "Entered text seems a bit long. Are you sure it's the name of a movie?",
+                         Toast.LENGTH_SHORT).show();
+
+                 //Reset the EditText & hide the loading spinner
+                 editTextMovieName.setText("");
+                 spinner.setVisibility(View.GONE);
+             }
+             else{
+                 String movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
+                 String movieSearchResultJSON;
+                 String movieSearchResultID;
+                 int numberOfMoviesFound;
+
+                 movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
+
+                 if (movieSearchResultJSON != null) {
+                     try {
+                         JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
+                         JSONObject movieJSONObj;
+
+                         // Get the "Movies" JSON array
+                         moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
+                         numberOfMoviesFound = moviesJSON.length();
+
+                         if (numberOfMoviesFound == 0){
+                             editTextMovieName.setText("");
+                             Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+                             startActivity(intentToShowNoResults);
+                             spinner.setVisibility(View.GONE);
+                         }
+                         else if(numberOfMoviesFound == 1){
+                             movieJSONObj = moviesJSON.getJSONObject(0);
+                             movieSearchResultID = movieJSONObj.getString(TAG_ID);
+
+                             editTextMovieName.setText("");
+
+                             Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                             intentSendMovieID.putExtra(INTENT_MOVIE_ID, movieSearchResultID);
+                             intentSendMovieID.putExtra(INTENT_KEY, apiKey);
+                             startActivity(intentSendMovieID);
+                             spinner.setVisibility(View.GONE);
+                         }
+                         else{
+                             HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<>();
+
+                             for (int currentMovie = 0; currentMovie < numberOfMoviesFound; currentMovie++) {
+                                 movieJSONObj = moviesJSON.getJSONObject(currentMovie);
+
+                                 List<String> listOfIDsAndNames = new ArrayList<>();
+                                 listOfIDsAndNames.add(movieJSONObj.getString(TAG_ID));
+                                 listOfIDsAndNames.add(movieJSONObj.getString(TAG_TITLE));
+
+                                 movieIDNameHashCodeMap.put(
+                                         movieJSONObj.getString(TAG_TITLE).hashCode(),
+                                         listOfIDsAndNames
+                                 );
+                             }
+
+                             Intent intentSendMovieIDsAndNames = new Intent(this, DisplayMoviesForSelectionActivity.class);
+                             intentSendMovieIDsAndNames.putExtra(INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
+                             intentSendMovieIDsAndNames.putExtra(INTENT_KEY, apiKey);
+
+                             //Reset the EditText & hide the loading spinner
+                             editTextMovieName.setText("");
+                             spinner.setVisibility(View.GONE);
+
+                             startActivity(intentSendMovieIDsAndNames);
+                         }
+                     } catch (JSONException e) {
+                         //Reset the EditText & hide the loading spinner
+                         editTextMovieName.setText("");
+                         spinner.setVisibility(View.GONE);
+
+                         //TODO: Implement better error handling
+                         Toast.makeText(
+                                 getApplicationContext(),
+                                 "JSON Exception Occurred",
+                                 Toast.LENGTH_SHORT).show();
+
+                         //TODO: Implement logging
+                     }
+
+                 } else {
+                     //TODO: Implement better error handling
+                     Toast.makeText(
+                             getApplicationContext(),
+                             "Hmm.. The API did not return anything.",
+                             Toast.LENGTH_SHORT).show();
+
+                     //TODO: Implement logging
+
+                     Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
+
+                     //Reset the EditText & hide the loading spinner
+                     editTextMovieName.setText("");
+                     spinner.setVisibility(View.GONE);
+
+                     startActivity(intentToShowNoResults);
+                 }
              }
          }
      }
