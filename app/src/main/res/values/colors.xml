@@ -2,6 +2,7 @@
 
     <!-- Solids -->
     <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
 
     <!-- Overlays -->
     <color name="red_overlay">#FF0000</color>
