@@ -11,10 +11,12 @@
     tools:context="invin.com.similarmovies.AboutActivity">
 
     <TextView
+        android:id="@+id/aboutAppTextView"
         android:text="@string/text_about"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView" />
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/ChangelogButton" />
 
     <Button
         android:id="@+id/returnButtonFromAboutActivity"
@@ -26,6 +28,19 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:background="@color/gray_overlay"/>
+
+    <Button
+        android:id="@+id/viewChangelogButton"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="@string/button_changelog"
+        android:layout_above="@+id/returnButtonFromAboutActivity"
+        android:layout_marginBottom="2dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:background="@color/gray_overlay"/>
 
 </RelativeLayout>

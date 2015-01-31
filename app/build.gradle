@@ -8,8 +8,8 @@ android {
         applicationId "invin.com.similarmovies"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "1.0.5"
     }
     buildTypes {
         release {

@@ -13,18 +13,19 @@
     <!-- Button Resources -->
     <string name="button_return">Return</string>
     <string name="button_search">Search</string>
+    <string name="button_changelog">Changelog</string>
 
     <!-- Activity Title Resources -->
     <string name="title_activity_about_app">About App</string>
     <string name="title_activity_no_results">No Results</string>
+    <string name="title_activity_changelog">Changelog</string>
     <string name="title_activity_home_screen">Find Similar Movies</string>
     <string name="title_activity_display_similar">List of Similar Movies</string>
     <string name="title_activity_display_movies_for_selection">Did You Mean...</string>
 
     <!-- Text Resources -->
-    <string name="text_about">A basic App that utilises the Rotten Tomatoes API to obtain a list of movies similar to an entered movie.\nIf the entered name is ambiguous, an initial list will be displayed to choose from. The selection will then be used to used to query for a list of similar movies.\n\nNo calculations are done by the App, any data displayed is data returned by the Rotten Tomatoes API.\nNo data is saved by the App. A search history is not maintained.\n\nKnown Limitations:\n- As this is a public API, there are rate limits. Rates at the time of publishing are limited to 5 API calls per second and 10,000 calls per day.\n- Newer movies may not yield any results, dependent on Rotten Tomatoes updating their databases.\n\nThis is an open source project browsable on GitHub</string>
     <string name="text_no_results">No Results Found!</string>
     <string name="text_input_hint">Enter Movie Name...</string>
-    <string name="title_activity_about">AboutActivity</string>
+    <string name="text_about">A basic App that utilises the Rotten Tomatoes API to obtain a list of movies similar to an entered movie.\nIf the entered name is ambiguous, an initial list will be displayed to choose from. The selection will then be used to used to query for a list of similar movies.\n\nNo calculations are done by the App, any data displayed is data returned by the Rotten Tomatoes API.\nNo data is saved by the App. A search history is not maintained.\n\nKnown Limitations:\n- As this is a public API, there are rate limits. Rates at the time of publishing are limited to 5 API calls per second and 10,000 calls per day.\n- Newer movies may not yield any results, dependent on Rotten Tomatoes updating their databases.\n\nThis is an open source project browsable on GitHub</string>
 
 </resources>

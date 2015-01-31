@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="invin.com.similarmovies"
-    android:versionCode="2"
-    android:versionName="1.1">
+    package="invin.com.similarmovies" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -41,6 +39,10 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_activity_about_app" >
+        </activity>
+        <activity
+            android:name=".ChangelogActivity"
+            android:label="@string/title_activity_changelog" >
         </activity>
     </application>
 

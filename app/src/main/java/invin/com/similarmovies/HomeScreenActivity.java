@@ -50,6 +50,8 @@ public class HomeScreenActivity extends Activity {
     //To show a loading indicator between Activities
     private ProgressBar spinner;
 
+    private final int MAXIMUM_MOVIE_NAME_LENGTH = 225;
+
     public final static String TAG_ID;
     public final static String TAG_TITLE;
     public final static String TAG_MOVIES;
@@ -184,7 +186,17 @@ public class HomeScreenActivity extends Activity {
                  editTextMovieName.setText("");
                  spinner.setVisibility(View.GONE);
              }
-             else if(editTextMovieName.getText().toString().length() > 25){
+             else if(!editTextMovieName.getText().toString().matches("[a-zA-Z0-9.?-_: ]*")){
+                 Toast.makeText(
+                         getApplicationContext(),
+                         "Special characters are not allowed.",
+                         Toast.LENGTH_SHORT).show();
+
+                 //Reset the EditText & hide the loading spinner
+                 editTextMovieName.setText("");
+                 spinner.setVisibility(View.GONE);
+             }
+             else if(editTextMovieName.getText().toString().length() > MAXIMUM_MOVIE_NAME_LENGTH){
                  Toast.makeText(
                          getApplicationContext(),
                          "Entered text seems a bit long. Are you sure it's the name of a movie?",
@@ -198,6 +210,7 @@ public class HomeScreenActivity extends Activity {
                  String movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
                  String movieSearchResultJSON;
                  String movieSearchResultID;
+                 String movieSearchResultName;
                  int numberOfMoviesFound;
 
                  movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
@@ -220,13 +233,15 @@ public class HomeScreenActivity extends Activity {
                          else if(numberOfMoviesFound == 1){
                              movieJSONObj = moviesJSON.getJSONObject(0);
                              movieSearchResultID = movieJSONObj.getString(TAG_ID);
+                             movieSearchResultName = movieJSONObj.getString(TAG_TITLE);
 
                              editTextMovieName.setText("");
 
-                             Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                             intentSendMovieID.putExtra(INTENT_MOVIE_ID, movieSearchResultID);
-                             intentSendMovieID.putExtra(INTENT_KEY, apiKey);
-                             startActivity(intentSendMovieID);
+                             Intent intentSendMovieIDAndName = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                             intentSendMovieIDAndName.putExtra(INTENT_MOVIE_ID, movieSearchResultID);
+                             intentSendMovieIDAndName.putExtra(INTENT_MOVIE_NAME, movieSearchResultName);
+                             intentSendMovieIDAndName.putExtra(INTENT_KEY, apiKey);
+                             startActivity(intentSendMovieIDAndName);
                              spinner.setVisibility(View.GONE);
                          }
                          else{

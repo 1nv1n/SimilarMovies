@@ -1,24 +1,22 @@
 package invin.com.similarmovies;
 
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import invin.com.similarmovies.util.Constants;
 
 /**
  * If the search for a movie from {@link invin.com.similarmovies.HomeScreenActivity} yields more
@@ -27,18 +25,27 @@ import java.util.Map;
  */
 public class DisplayMoviesForSelectionActivity extends ListActivity {
 
-    private static final String TAG_TITLE = "title";
-
-    private ArrayList<String> movieListArray;
+    //Hashmap of the movie name, it's RottenTomatoes ID with the hash code of the name as the key
     private HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<Integer, List<String>>();
-    String apiKey;
+
+    //Store the API key (To pass on to the next activity)
+    private String apiKey;
+
+    //Verify that hash-coding served its purpose
+    private boolean wasMovieMatched;
+
+    public DisplayMoviesForSelectionActivity() {
+        wasMovieMatched = false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_movies_for_selection);
 
-        //Logic to go back to the parent activity
+        /**
+         * Finish the current activity & return to the previous open activity
+         */
         Button returnButton = (Button)findViewById(R.id.returnButtonFromMoviesForSelectionList);
         returnButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -46,17 +53,16 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
             }
         });
 
-        // Get the movie ID & name passed in from the Home Screen
-        Intent intent = getIntent();
-        movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intent.getSerializableExtra(HomeScreenActivity.INTENT_MOVIE_ID_NAME);
-        apiKey = intent.getStringExtra(HomeScreenActivity.INTENT_KEY);
+        // Get the movie ID, name & the API key passed in from the Home Screen
+        Intent intentSendMovieIDsAndNames = getIntent();
+        movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intentSendMovieIDsAndNames.getSerializableExtra(HomeScreenActivity.INTENT_MOVIE_ID_NAME);
+        apiKey = intentSendMovieIDsAndNames.getStringExtra(HomeScreenActivity.INTENT_KEY);
 
-        movieListArray = new ArrayList<String>();
-        ListView movieListView = (ListView) findViewById(R.id.list_item);
-
+        ArrayList<String> movieListArray = new ArrayList<String>();
         for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
             List<String> listOfIDsAndNames = hashMovieEntry.getValue();
-            movieListArray.add(listOfIDsAndNames.get(1));
+            //TODO: I've hard-coded a space to offset the bullet; for padding
+            movieListArray.add(" "+listOfIDsAndNames.get(1));
         }
 
         ArrayAdapter<String> movieListAdapter = new ArrayAdapter <String>(
@@ -80,11 +86,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        //noinspection SimplifiableIfStatement
         switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                openActionSettings();
-//                return true;
             case R.id.action_about:
                 openActionAbout();
                 return true;
@@ -102,23 +104,40 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         //Alternative method to get the selected movie:
         //String selectedItem = (String) getListAdapter().getItem(position);
 
+        //TODO: This is a bad design pattern, need to implement something better.
+        //Remove the extra blank space that we had added earlier (for padding purposes)
+        selectedItem = selectedItem.substring(1);
+
+        /**
+         * In order to send the correct movie ID to the next activity,
+         *  we need to match the hash code of the selected movie with ones from the list
+         *  sent from the previous activity
+         */
         for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
             if(selectedItem.hashCode() == hashMovieEntry.getKey()){
+                wasMovieMatched = true;
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
 
-                Intent intentSendMovieID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                intentSendMovieID.putExtra(HomeScreenActivity.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
-                intentSendMovieID.putExtra(HomeScreenActivity.INTENT_KEY, apiKey);
-                startActivity(intentSendMovieID);
+                Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_NAME, selectedItem);
+                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
+                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_KEY, apiKey);
+
+                if (BuildConfig.DEBUG) {
+                    Log.d(Constants.LOG, "Selected Movie:"+selectedItem);
+                    Log.d(Constants.LOG, "ID:"+listOfIDsAndNames.get(0));
+                }
+
+                startActivity(intentSendMovieNameAndID);
             }
         }
 
-        //TODO: Implement a logger for debugging
-        //Commenting out Toast; Uncomment to serve debugging purposes
-        //Toast.makeText(
-        //        getApplicationContext(),
-        //        "You clicked " + selectedItem + " at position " + position,
-        //        Toast.LENGTH_SHORT).show();
+        if(!wasMovieMatched){
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Something went wrong, please restart the App",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     //TODO: Externalize this method into a Util package

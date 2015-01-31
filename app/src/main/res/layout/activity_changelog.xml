@@ -1,0 +1,106 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="invin.com.similarmovies.ChangelogActivity">
+
+    <TableLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:stretchColumns="1"
+        android:layout_above="@+id/returnButtonFromChangelog">
+
+        <TableRow>
+            <TextView
+                android:text="1.0.5"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Enabled finding Similar Movies from the similar movies list"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="1.0.4"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Added a filter for special characters"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="1.0.3"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Updated maximum movie length to 225 characters"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="1.0.2"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Updated Input Handling - Allow \'Enter\' key to search for a movie."
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="1.0.1"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Disabled multiline submissions"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <View
+            android:layout_height="@dimen/table_row_line_height"
+            android:background="#FF909090" />
+
+        <TableRow>
+            <TextView
+                android:text="1.0.0"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Initial Release"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <View
+            android:layout_height="@dimen/table_row_line_height"
+            android:background="#FF909090" />
+    </TableLayout>
+
+    <Button
+        android:id="@+id/returnButtonFromChangelog"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="@string/button_return"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/gray_overlay"/>
+
+</RelativeLayout>

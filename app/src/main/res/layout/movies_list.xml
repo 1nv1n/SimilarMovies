@@ -11,8 +11,10 @@
 
     <TextView
         android:id="@+id/movieTitle"
+        android:drawableLeft="@drawable/bullet"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:padding="4dp"
         android:paddingBottom="2dip"
         android:textColor="@color/black"
         android:textStyle="bold" />

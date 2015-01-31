@@ -1,6 +1,7 @@
 package invin.com.similarmovies;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 /**
- * Display an 'About' screen with some App information
+ * Display an 'About' screen with App information
  */
 public class AboutActivity extends Activity {
 
@@ -20,10 +21,21 @@ public class AboutActivity extends Activity {
         /**
          * Finish the current activity & return to the previous open activity
          */
-        Button returnButton = (Button)findViewById(R.id.returnButtonFromAboutActivity);
-        returnButton.setOnClickListener(new View.OnClickListener() {
+        Button returnButtonFromAboutActivity = (Button)findViewById(R.id.returnButtonFromAboutActivity);
+        returnButtonFromAboutActivity.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        /**
+         * Open the Changelog
+         */
+        Button viewChangelogButton = (Button)findViewById(R.id.viewChangelogButton);
+        viewChangelogButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intentShowChangelog = new Intent(AboutActivity.this, ChangelogActivity.class);
+                startActivity(intentShowChangelog);
             }
         });
     }
