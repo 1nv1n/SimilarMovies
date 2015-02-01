@@ -34,6 +34,8 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
     //Verify that hash-coding served its purpose
     private boolean wasMovieMatched;
 
+    ArrayList<String> movieListArray;
+
     public DisplayMoviesForSelectionActivity() {
         wasMovieMatched = false;
     }
@@ -58,14 +60,13 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intentSendMovieIDsAndNames.getSerializableExtra(HomeScreenActivity.INTENT_MOVIE_ID_NAME);
         apiKey = intentSendMovieIDsAndNames.getStringExtra(HomeScreenActivity.INTENT_KEY);
 
-        ArrayList<String> movieListArray = new ArrayList<String>();
+        movieListArray = new ArrayList<>();
         for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
             List<String> listOfIDsAndNames = hashMovieEntry.getValue();
-            //TODO: I've hard-coded a space to offset the bullet; for padding
-            movieListArray.add(" "+listOfIDsAndNames.get(1));
+            movieListArray.add(listOfIDsAndNames.get(1));
         }
 
-        ArrayAdapter<String> movieListAdapter = new ArrayAdapter <String>(
+        ArrayAdapter<String> movieListAdapter = new ArrayAdapter<>(
                 this,
                 R.layout.movies_list,
                 R.id.movieTitle,
@@ -99,14 +100,10 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
     protected void onListItemClick(ListView list, View view, int position, long id) {
         super.onListItemClick(list, view, position, id);
 
-        //Get the selected movie
+        // Get the selected movie
         String selectedItem = (String) getListView().getItemAtPosition(position);
-        //Alternative method to get the selected movie:
-        //String selectedItem = (String) getListAdapter().getItem(position);
-
-        //TODO: This is a bad design pattern, need to implement something better.
-        //Remove the extra blank space that we had added earlier (for padding purposes)
-        selectedItem = selectedItem.substring(1);
+        // Alternative method to get the selected movie:
+        // String selectedItem = (String) getListAdapter().getItem(position);
 
         /**
          * In order to send the correct movie ID to the next activity,
@@ -125,10 +122,11 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
 
                 if (BuildConfig.DEBUG) {
                     Log.d(Constants.LOG, "Selected Movie:"+selectedItem);
-                    Log.d(Constants.LOG, "ID:"+listOfIDsAndNames.get(0));
+                    Log.d(Constants.LOG, "Selected Movie ID:"+listOfIDsAndNames.get(0));
                 }
 
                 startActivity(intentSendMovieNameAndID);
+                break;
             }
         }
 
@@ -140,18 +138,6 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         }
     }
 
-    //TODO: Externalize this method into a Util package
-    /**
-     * Handle the 'Settings' action from the Action Bar
-     */
-    public void openActionSettings(){
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, Settings are currently disabled",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    //TODO: Externalize this method into a Util package
     /**
      * Handle the 'About' action from the Action Bar
      */

@@ -12,6 +12,7 @@
     <TextView
         android:id="@+id/movieTitle"
         android:drawableLeft="@drawable/bullet"
+        android:drawablePadding="4dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="4dp"

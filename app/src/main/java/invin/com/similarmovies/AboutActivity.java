@@ -19,7 +19,7 @@ public class AboutActivity extends Activity {
         setContentView(R.layout.activity_about);
 
         /**
-         * Finish the current activity & return to the previous open activity
+         * On click of the 'Return' button, finish the current activity & return to the previous open activity
          */
         Button returnButtonFromAboutActivity = (Button)findViewById(R.id.returnButtonFromAboutActivity);
         returnButtonFromAboutActivity.setOnClickListener(new View.OnClickListener() {
@@ -29,7 +29,7 @@ public class AboutActivity extends Activity {
         });
 
         /**
-         * Open the Changelog
+         * On click of the 'Changelog' butting, open the Changelog activity
          */
         Button viewChangelogButton = (Button)findViewById(R.id.viewChangelogButton);
         viewChangelogButton.setOnClickListener(new View.OnClickListener() {

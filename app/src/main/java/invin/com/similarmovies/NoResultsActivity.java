@@ -43,7 +43,6 @@ public class NoResultsActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        //noinspection SimplifiableIfStatement
         switch (item.getItemId()) {
 //            case R.id.action_settings:
 //                openActionSettings();
@@ -60,12 +59,12 @@ public class NoResultsActivity extends Activity {
     /**
      * Handle the 'Settings' action from the Action Bar
      */
-    public void openActionSettings(){
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, Settings are currently disabled",
-                Toast.LENGTH_SHORT).show();
-    }
+//    public void openActionSettings(){
+//        Toast.makeText(
+//                getApplicationContext(),
+//                "Sorry, Settings are currently disabled",
+//                Toast.LENGTH_SHORT).show();
+//    }
 
     //TODO: Externalize this method into a Util package
     /**

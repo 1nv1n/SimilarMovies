@@ -18,10 +18,21 @@
 
         <TableRow>
             <TextView
+                android:text="1.0.6"
+                android:padding="@dimen/table_row_padding" />
+            <TextView
+                android:text="Code optimization and multi-thread processing"
+                android:padding="@dimen/table_row_padding"
+                android:layout_width="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
                 android:text="1.0.5"
                 android:padding="@dimen/table_row_padding" />
             <TextView
-                android:text="Enabled finding Similar Movies from the similar movies list"
+                android:text="Enabled finding similar movies for a movie from the similar movies list"
                 android:padding="@dimen/table_row_padding"
                 android:layout_width="wrap_content"
                 android:layout_weight="1" />

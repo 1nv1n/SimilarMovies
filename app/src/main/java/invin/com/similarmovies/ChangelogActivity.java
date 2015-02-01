@@ -43,39 +43,6 @@ public class ChangelogActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
-        //noinspection SimplifiableIfStatement
-        switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                openActionSettings();
-//                return true;
-            case R.id.action_about:
-                openActionAbout();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-//TODO: Externalize this method into a Util package
-
-    /**
-     * Handle the 'Settings' action from the Action Bar
-     */
-    public void openActionSettings() {
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, Settings are currently disabled",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    //TODO: Externalize this method into a Util package
-
-    /**
-     * Handle the 'About' action from the Action Bar
-     */
-    public void openActionAbout() {
-        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
-        startActivity(intentToShowAboutActivity);
+        return super.onOptionsItemSelected(item);
     }
 }

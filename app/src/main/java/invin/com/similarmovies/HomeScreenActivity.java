@@ -3,28 +3,26 @@ package invin.com.similarmovies;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import org.apache.commons.io.IOUtils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,28 +32,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import invin.com.similarmovies.util.Constants;
+
+import static invin.com.similarmovies.R.menu.menu_main;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 /**
- * This is the home screen of the App
+ * Home Screen of the App.
  *
  * @author Neil Pathare
  */
 public class HomeScreenActivity extends Activity {
 
-    //To show a loading indicator between Activities
+    //To show a loading indicator between Activities whilst data processing is ongoing
     private ProgressBar spinner;
 
-    private final int MAXIMUM_MOVIE_NAME_LENGTH = 225;
-
+    //JSON tags
     public final static String TAG_ID;
     public final static String TAG_TITLE;
     public final static String TAG_MOVIES;
 
+    //Different intents in use
     public final static String INTENT_KEY;
     public final static String INTENT_MOVIE_ID;
     public final static String INTENT_MOVIE_NAME;
@@ -73,35 +75,28 @@ public class HomeScreenActivity extends Activity {
     }
 
     //'Movies' JSONArray
-    private JSONArray moviesJSON;
+    private JSONArray moviesJSONArray;
 
-    private String apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
-    private String apiMovieSearchQueryAppender = ".json?q=";
-    private String apiMovieSearchConnector = "&page_limit=10&page=1&apikey=";
+    //Strings to assist in the API URL build
+    private String apiURLPrepender;
+    private String apiMovieSearchQueryAppender;
+    private String apiMovieSearchConnector;
 
-    private String apiKey;
-
+    //EditText to get the movie name from the user
     private EditText editTextMovieName;
 
+    //Basic constructor
     public HomeScreenActivity() {
-        moviesJSON = null;
+        moviesJSONArray = null;
+        apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
+        apiMovieSearchQueryAppender = ".json?q=";
+        apiMovieSearchConnector = "&page_limit=10&page=1&apikey=";
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
-
-        //TODO: Look into build(); if it's still needed
-        if (Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode
-                    .ThreadPolicy
-                    .Builder()
-                    .permitAll()
-                    .build();
-
-            StrictMode.setThreadPolicy(policy);
-        }
 
         //Default 'Up - Home' button functionality is intentionally disabled
         getActionBar().setDisplayHomeAsUpEnabled(false);
@@ -110,16 +105,34 @@ public class HomeScreenActivity extends Activity {
         spinner = (ProgressBar)findViewById(R.id.homeScreenProgressBar);
         spinner.setVisibility(View.GONE);
 
+        /**
+         * Identify the EditText & set an Action Listener to automatically pass the contents
+         * to the relevant method while disabling the 'Enter' key
+         */
         editTextMovieName = (EditText) findViewById(R.id.editTextMovieName);
         editTextMovieName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
                 boolean handledIMEAction = false;
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    searchAndSendMovieDetails(textView);
-                    handledIMEAction = true;
+                    if(isAValidMovieName(editTextMovieName.getText().toString())){
+                        //Start a new AsyncTaskRunner to ensure that we always process on a new thread
+                        new AsyncTaskRunner().execute(editTextMovieName.getText().toString());
+                        handledIMEAction = true;
+                    }
                 }
                 return handledIMEAction;
+            }
+        });
+
+        Button searchMovieButton = (Button)findViewById(R.id.searchMovieButton);
+        searchMovieButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isAValidMovieName(editTextMovieName.getText().toString())){
+                    //Start a new AsyncTaskRunner to ensure that we always process on a new thread
+                    new AsyncTaskRunner().execute(editTextMovieName.getText().toString());
+                }
             }
         });
     }
@@ -127,16 +140,17 @@ public class HomeScreenActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        MenuInflater inflater = getMenuInflater();
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        /**
+         * Handle action bar item clicks here. The action bar will
+         * automatically handle clicks on the Home/Up button, so long
+         * as you specify a parent activity in AndroidManifest.xml.
+        */
         switch (item.getItemId()) {
             //Commenting out Settings for now.
 //            case R.id.action_settings:
@@ -151,161 +165,6 @@ public class HomeScreenActivity extends Activity {
     }
 
     /**
-     * Called when the user tries to find similar movies
-     * This method will attempt to retrieve the ID of the entered movie & send that to an activity
-     *  to search for & display similar movies.
-     * If multiple movies are returned based on the movie name input, IDs & names will be sent to
-     *  an activity for the user to select the movie he wants to search from this list.
-     */
-     public void searchAndSendMovieDetails(View view) {
-
-         //Start the loading spinner as soon as we enter this method
-         spinner.setVisibility(View.VISIBLE);
-         //Hide the spinner when we are switching to another activity or otherwise leaving the method
-
-         //Get the API key from the Assets folder
-         apiKey = returnRottenTomatoesAPIKeyFromAssets();
-
-         if(apiKey.isEmpty()){
-             Toast.makeText(
-                     getApplicationContext(),
-                     "An unexpected error occurred - API key is missing. Please re-install the App",
-                     Toast.LENGTH_SHORT).show();
-
-             //Reset the EditText & hide the loading spinner
-             spinner.setVisibility(View.GONE);
-         }
-         else{
-             if(editTextMovieName.getText().toString().isEmpty()){
-                 Toast.makeText(
-                         getApplicationContext(),
-                         "You need to enter something first..",
-                         Toast.LENGTH_SHORT).show();
-
-                 //Reset the EditText & hide the loading spinner
-                 editTextMovieName.setText("");
-                 spinner.setVisibility(View.GONE);
-             }
-             else if(!editTextMovieName.getText().toString().matches("[a-zA-Z0-9.?-_: ]*")){
-                 Toast.makeText(
-                         getApplicationContext(),
-                         "Special characters are not allowed.",
-                         Toast.LENGTH_SHORT).show();
-
-                 //Reset the EditText & hide the loading spinner
-                 editTextMovieName.setText("");
-                 spinner.setVisibility(View.GONE);
-             }
-             else if(editTextMovieName.getText().toString().length() > MAXIMUM_MOVIE_NAME_LENGTH){
-                 Toast.makeText(
-                         getApplicationContext(),
-                         "Entered text seems a bit long. Are you sure it's the name of a movie?",
-                         Toast.LENGTH_SHORT).show();
-
-                 //Reset the EditText & hide the loading spinner
-                 editTextMovieName.setText("");
-                 spinner.setVisibility(View.GONE);
-             }
-             else{
-                 String movieToSearchFor = editTextMovieName.getText().toString().replace(' ', '+');
-                 String movieSearchResultJSON;
-                 String movieSearchResultID;
-                 String movieSearchResultName;
-                 int numberOfMoviesFound;
-
-                 movieSearchResultJSON = returnSearchResultJSON(movieToSearchFor, apiKey);
-
-                 if (movieSearchResultJSON != null) {
-                     try {
-                         JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
-                         JSONObject movieJSONObj;
-
-                         // Get the "Movies" JSON array
-                         moviesJSON = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
-                         numberOfMoviesFound = moviesJSON.length();
-
-                         if (numberOfMoviesFound == 0){
-                             editTextMovieName.setText("");
-                             Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-                             startActivity(intentToShowNoResults);
-                             spinner.setVisibility(View.GONE);
-                         }
-                         else if(numberOfMoviesFound == 1){
-                             movieJSONObj = moviesJSON.getJSONObject(0);
-                             movieSearchResultID = movieJSONObj.getString(TAG_ID);
-                             movieSearchResultName = movieJSONObj.getString(TAG_TITLE);
-
-                             editTextMovieName.setText("");
-
-                             Intent intentSendMovieIDAndName = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                             intentSendMovieIDAndName.putExtra(INTENT_MOVIE_ID, movieSearchResultID);
-                             intentSendMovieIDAndName.putExtra(INTENT_MOVIE_NAME, movieSearchResultName);
-                             intentSendMovieIDAndName.putExtra(INTENT_KEY, apiKey);
-                             startActivity(intentSendMovieIDAndName);
-                             spinner.setVisibility(View.GONE);
-                         }
-                         else{
-                             HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<>();
-
-                             for (int currentMovie = 0; currentMovie < numberOfMoviesFound; currentMovie++) {
-                                 movieJSONObj = moviesJSON.getJSONObject(currentMovie);
-
-                                 List<String> listOfIDsAndNames = new ArrayList<>();
-                                 listOfIDsAndNames.add(movieJSONObj.getString(TAG_ID));
-                                 listOfIDsAndNames.add(movieJSONObj.getString(TAG_TITLE));
-
-                                 movieIDNameHashCodeMap.put(
-                                         movieJSONObj.getString(TAG_TITLE).hashCode(),
-                                         listOfIDsAndNames
-                                 );
-                             }
-
-                             Intent intentSendMovieIDsAndNames = new Intent(this, DisplayMoviesForSelectionActivity.class);
-                             intentSendMovieIDsAndNames.putExtra(INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
-                             intentSendMovieIDsAndNames.putExtra(INTENT_KEY, apiKey);
-
-                             //Reset the EditText & hide the loading spinner
-                             editTextMovieName.setText("");
-                             spinner.setVisibility(View.GONE);
-
-                             startActivity(intentSendMovieIDsAndNames);
-                         }
-                     } catch (JSONException e) {
-                         //Reset the EditText & hide the loading spinner
-                         editTextMovieName.setText("");
-                         spinner.setVisibility(View.GONE);
-
-                         //TODO: Implement better error handling
-                         Toast.makeText(
-                                 getApplicationContext(),
-                                 "JSON Exception Occurred",
-                                 Toast.LENGTH_SHORT).show();
-
-                         //TODO: Implement logging
-                     }
-
-                 } else {
-                     //TODO: Implement better error handling
-                     Toast.makeText(
-                             getApplicationContext(),
-                             "Hmm.. The API did not return anything.",
-                             Toast.LENGTH_SHORT).show();
-
-                     //TODO: Implement logging
-
-                     Intent intentToShowNoResults = new Intent(this, NoResultsActivity.class);
-
-                     //Reset the EditText & hide the loading spinner
-                     editTextMovieName.setText("");
-                     spinner.setVisibility(View.GONE);
-
-                     startActivity(intentToShowNoResults);
-                 }
-             }
-         }
-     }
-
-    /**
      * Makes the HTTP call to the API & returns the JSON response as a {@link java.lang.String}
      *
      * @param movieToSearchFor {@link java.lang.String} consisting of the movie name
@@ -315,16 +174,15 @@ public class HomeScreenActivity extends Activity {
     private String returnSearchResultJSON(String movieToSearchFor, String apiKey) {
         HttpClient defaultHTTPClient = new DefaultHttpClient();
 
-        StringBuilder apiURLBuilder = new StringBuilder();
-        String apiResponse = "default";
+        String apiResponse = "defaultAPIResponse";
 
-        apiURLBuilder.append(apiURLPrepender);
-        apiURLBuilder.append(apiMovieSearchQueryAppender);
-        apiURLBuilder.append(movieToSearchFor);
-        apiURLBuilder.append(apiMovieSearchConnector);
-        apiURLBuilder.append(apiKey);
+        HttpGet movieSearchHTTPRequest = new HttpGet(
+                apiURLPrepender +
+                apiMovieSearchQueryAppender +
+                movieToSearchFor +
+                apiMovieSearchConnector +
+                apiKey);
 
-        HttpGet movieSearchHTTPRequest = new HttpGet(apiURLBuilder.toString());
         HttpResponse movieSearchHTTPResponse;
 
         InputStreamReader apiResponseInputStreamReader = null;
@@ -333,13 +191,10 @@ public class HomeScreenActivity extends Activity {
 
         try {
             movieSearchHTTPResponse = defaultHTTPClient.execute(movieSearchHTTPRequest);
-            if(movieSearchHTTPResponse.equals(null)){
-                apiResponse = ":Err:NullResponse:";
-            }
-            else{
+            //As long as we don't get a null response, continue processing
+            if(!movieSearchHTTPResponse.equals(null)){
                 inputStreamFromAPIResponse = movieSearchHTTPResponse.getEntity().getContent();
 
-                //TODO: Need a better way to check for Content Encoding
                 if ("gzip".equals(movieSearchHTTPResponse.getEntity().getContentEncoding())){
                     inputStreamFromAPIResponse = new GZIPInputStream(inputStreamFromAPIResponse);
                 }
@@ -358,15 +213,18 @@ public class HomeScreenActivity extends Activity {
                 apiResponse = inputStreamStringBuilder.toString();
             }
         } catch (ClientProtocolException e) {
-            //TODO: Implement better error handling
-            System.out.println(":Err:ClientProtocolException:"+e);
-            //TODO: Implement logging
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "ClientProtocolException:" + e.toString());
+            }
         } catch (IOException e) {
-            //TODO: Implement better error handling
-            System.out.println(":Err:IOException:");
-            //TODO: Implement logging
-        }
-        finally {
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "IOException:" + e.toString());
+            }
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "Exception:" + e.toString());
+            }
+        } finally {
             IOUtils.closeQuietly(inputStreamFromAPIResponse);
             IOUtils.closeQuietly(apiResponseInputStreamReader);
             IOUtils.closeQuietly(inputStreamBufferedReader);
@@ -400,30 +258,22 @@ public class HomeScreenActivity extends Activity {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            //TODO: Implement better error handling
-            System.out.println(":Err:UnsupportedEncodingException:"+e);
-            //TODO: Implement logging
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "UnsupportedEncodingException:" + e.toString());
+            }
         } catch (IOException e) {
-            //TODO: Implement better error handling
-            System.out.println(":Err:IOException:"+e);
-            //TODO: Implement logging
-        }
-        finally {
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "IOException:" + e.toString());
+            }
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG, "Exception:" + e.toString());
+            }
+        } finally {
             IOUtils.closeQuietly(propertiesReader);
             IOUtils.closeQuietly(bufferedAssetsFileReader);
-
             return keyBuilder.toString();
         }
-    }
-
-    /**
-     * Handle the 'Settings' action from the Action Bar
-     */
-    public void openActionSettings(){
-        Toast.makeText(
-                getApplicationContext(),
-                "Sorry, Settings are currently disabled",
-                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -435,11 +285,230 @@ public class HomeScreenActivity extends Activity {
     }
 
     /**
-     * Load the Progress Bar Spinner
+     * Verify that the entered movie name follows guidelines
      *
-     * @param view {@link android.view.View}
+     * @param enteredMovieName 9{@link java.lang.String} containing the movie name)
+     * @return TRUE if the entered text is valid, FALSE otherwise
      */
-    public void loadProgressSpinner(View view){
-        spinner.setVisibility(View.VISIBLE);
+    private boolean isAValidMovieName(String enteredMovieName){
+
+        int MAXIMUM_MOVIE_NAME_LENGTH = 225;
+
+        if(isBlank(enteredMovieName)) {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "You need to enter a movie name first..",
+                    Toast.LENGTH_SHORT).show();
+
+            //Reset the EditText & hide the loading spinner
+            editTextMovieName.setText("");
+            spinner.setVisibility(View.GONE);
+
+            return false;
+        }
+        else if (!enteredMovieName.matches("[a-zA-Z0-9.?-_: ]*")) {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Please re-enter the name without special characters.",
+                    Toast.LENGTH_SHORT).show();
+
+            //Reset the EditText & hide the loading spinner
+            editTextMovieName.setText("");
+            spinner.setVisibility(View.GONE);
+
+            return false;
+        }
+        else if (enteredMovieName.length() > MAXIMUM_MOVIE_NAME_LENGTH) {
+
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Entered text seems a bit long. Are you sure it's the name of a movie?",
+                    Toast.LENGTH_SHORT).show();
+
+            //Reset the EditText & hide the loading spinner
+            editTextMovieName.setText("");
+            spinner.setVisibility(View.GONE);
+
+            return false;
+         }
+
+        // Return true if everything is in order
+        return true;
+    }
+
+    /**
+     * This should handle all the processing & take it off the main thread
+     *
+     * @see android.os.AsyncTask
+     */
+    private class AsyncTaskRunner extends AsyncTask<String, String, String> {
+
+        private final String noMoviesFound = "noMoviesFound";
+        private final String oneResultFound = "oneResultFound";
+        private final String endOfProcessing = "endOfProcessing";
+        private final String multipleResultsFound = "multipleResultsFound";
+
+        /**
+         * This method will attempt to retrieve the ID of the entered movie & send that to
+         *  {@link invin.com.similarmovies.DisplaySimilarMoviesListActivity} to search for & display
+         *  similar movies.
+         * If multiple movies are returned based on the movie name input, IDs & names will be sent to
+         *  {@link invin.com.similarmovies.DisplayMoviesForSelectionActivity} for the user to select the
+         *  movie he wants to search from this list.
+         *
+         * @see android.os.AsyncTask#doInBackground(Object[])
+         */
+        @Override
+        protected String doInBackground(String... params) {
+            // Calls onProgressUpdate()
+            publishProgress("Processing...");
+
+            // Get the API key from the Assets folder
+            String apiKey = returnRottenTomatoesAPIKeyFromAssets();
+
+            if(isBlank(apiKey)){
+                System.out.println("apiKey is Blank");
+            }
+            else{
+                String movieSearchResultJSON;
+                int numberOfMoviesFound;
+
+                movieSearchResultJSON = returnSearchResultJSON(
+                    editTextMovieName.getText().toString().replace(' ', '+'),
+                        apiKey);
+
+                if (null != movieSearchResultJSON) {
+                    try {
+                        JSONObject movieSearchResultJSONObj = new JSONObject(movieSearchResultJSON);
+                        JSONObject movieJSONObj;
+
+                        // Get the "Movies" JSON array
+                        moviesJSONArray = movieSearchResultJSONObj.getJSONArray(TAG_MOVIES);
+                        numberOfMoviesFound = moviesJSONArray.length();
+
+                        if (numberOfMoviesFound == 0) {
+                            return noMoviesFound;
+                        } else {
+                            if (numberOfMoviesFound == 1) {
+                                Intent intentSendMovieIDAndName = new Intent(HomeScreenActivity.this, DisplaySimilarMoviesListActivity.class);
+
+                                //Since we know there's only one movie; get the details from the first JSON object
+                                intentSendMovieIDAndName.putExtra(
+                                    INTENT_MOVIE_ID,
+                                    moviesJSONArray.getJSONObject(0).getString(TAG_ID));
+
+                                intentSendMovieIDAndName.putExtra(
+                                    INTENT_MOVIE_NAME,
+                                    moviesJSONArray.getJSONObject(0).getString(TAG_TITLE));
+
+                                intentSendMovieIDAndName.putExtra(INTENT_KEY, apiKey);
+                                startActivity(intentSendMovieIDAndName);
+
+                                return oneResultFound;
+                            } else {
+                                //Send all the found movies to display for selection stored in a HashMap
+                                HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<>();
+
+                                for (int currentMovie = 0; currentMovie < numberOfMoviesFound; currentMovie++) {
+                                    movieJSONObj = moviesJSONArray.getJSONObject(currentMovie);
+
+                                    List<String> listOfIDsAndNames = new ArrayList<>();
+                                    listOfIDsAndNames.add(movieJSONObj.getString(TAG_ID));
+                                    listOfIDsAndNames.add(movieJSONObj.getString(TAG_TITLE));
+
+                                    movieIDNameHashCodeMap.put(
+                                        movieJSONObj.getString(TAG_TITLE).hashCode(),
+                                        listOfIDsAndNames);
+                                }
+
+                                Intent intentSendMovieIDsAndNames = new Intent(HomeScreenActivity.this, DisplayMoviesForSelectionActivity.class);
+                                intentSendMovieIDsAndNames.putExtra(INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
+                                intentSendMovieIDsAndNames.putExtra(INTENT_KEY, apiKey);
+                                startActivity(intentSendMovieIDsAndNames);
+
+                                return multipleResultsFound;
+                            }
+                        }
+                    } catch (JSONException e) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(Constants.LOG, "JSONException:" + movieSearchResultJSON);
+                        }
+                    } catch (Exception e) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(Constants.LOG, "Exception:" + movieSearchResultJSON);
+                        }
+                    }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, "API Returned 'null' for:" + editTextMovieName.getText().toString().replace(' ', '+'));
+                    }
+                    return noMoviesFound;
+                }
+            }
+            return endOfProcessing;
+        }
+
+        /**
+         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+         */
+        @Override
+        protected void onPostExecute(String backgroundProcessingResult) {
+            Intent intentToShowNoResults = new Intent(HomeScreenActivity.this, NoResultsActivity.class);
+
+            switch (backgroundProcessingResult){
+                case noMoviesFound:
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, noMoviesFound);
+                    }
+                    startActivity(intentToShowNoResults);
+                    break;
+                case oneResultFound:
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, oneResultFound);
+                    }
+                    break;
+                case multipleResultsFound:
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, multipleResultsFound);
+                    }
+                    break;
+                case endOfProcessing:
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, endOfProcessing);
+                    }
+                    break;
+                default:
+                    if (BuildConfig.DEBUG) {
+                        Log.d(Constants.LOG, "onPostExecute:default");
+                    }
+                    startActivity(intentToShowNoResults);
+                    break;
+            }
+            //After our processing, disable the spinner & reset the EditText
+            spinner.setVisibility(View.GONE);
+            editTextMovieName.setText("");
+        }
+
+        /**
+         * @see android.os.AsyncTask#onPreExecute()
+         */
+        @Override
+        protected void onPreExecute() {
+            /**
+             * Things to be done before execution of long running operation.
+             */
+        }
+
+        /**
+         * @see android.os.AsyncTask#onProgressUpdate(Object[])
+         */
+        @Override
+        protected void onProgressUpdate(String... text) {
+            /**
+             * Things to be done while execution of long running operation is in progress.
+             * A ProgessDialog can be used here instead of a Spinner too
+             */
+            spinner.setVisibility(View.VISIBLE);
+        }
     }
 }
