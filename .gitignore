@@ -1,7 +1,10 @@
 .gradle
-/app/src/main/assets/key.properties
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
+.idea
 .DS_Store
+/app/src/main/assets/key.properties
+/app/app-release.apk
 /build
+local.properties
+local-Ghost.properties
+SimilarMovies.iml
+SimilarMovies-Ghost.iml
