@@ -6,6 +6,11 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/InViN/SimilarMovies/badge.svg?branch=master)](https://coveralls.io/github/InViN/SimilarMovies?branch=master)
 
+#### Funding
+[![Flattr](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=1nv1n&url=https://github.com/InViN/SimilarMovies&title=SimilarMovies&language=&tags=github&category=software)
+
+[![Gittip](http://img.shields.io/gittip/InViN.svg)](https://www.gittip.com/InViN/)
+
 ## Find Similar Movies
 
  An App that makes use of the RottenTomatoes API to search for movies similar to a given movie.
