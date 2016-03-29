@@ -26,6 +26,14 @@
     <!-- Text Resources -->
     <string name="text_no_results">No Results Found!</string>
     <string name="text_input_hint">Enter Movie Name...</string>
-    <string name="text_about">A basic App that utilises the Rotten Tomatoes API to obtain a list of movies similar to an entered movie.\nIf the entered name is ambiguous, an initial list will be displayed to choose from. The selection will then be used to used to query for a list of similar movies.\n\nNo calculations are done by the App, any data displayed is data returned by the Rotten Tomatoes API.\nNo data is saved by the App. A search history is not maintained.\n\nKnown Limitations:\n- As this is a public API, there are rate limits. Rates at the time of publishing are limited to 5 API calls per second and 10,000 calls per day.\n- Newer movies may not yield any results, dependent on Rotten Tomatoes updating their databases.\n\nThis is an open source project browsable on GitHub</string>
+    <string name="text_about">A basic App that utilises the Rotten Tomatoes API to obtain a list of movies similar to the entered movie.\nIf the entered name is ambiguous, an initial list will be displayed to choose from. The selection from this list will then be used to used to query for a list of similar movies.\n\nNo calculations are done by the App, everything displayed is data returned by the Rotten Tomatoes API.\nNo data is saved by the App nor is a search history maintained.\n\nKnown Limitations:\n- As this is a public API, there are rate limits. Rates at the time of publishing are limited to 5 API calls per second and 10,000 calls per day.\n- Newer movies may not yield any results, this is dependant on Rotten Tomatoes updating their databases.\n\nOpen source project browsable on GitHub</string>
+
+    <!-- Toast Resources -->
+    <string name="text_no_name">You need to enter a movie name first.</string>
+    <string name="text_reenter">Please re-enter the name without special characters.</string>
+    <string name="text_long_name">Entered text seems a bit long. Are you sure it\'s the name of a movie?</string>
+    <string name="text_settings_disabled">Sorry, Settings are currently disabled</string>
+    <string name="text_error_restart">Something went wrong, please restart the App</string>
+    <string name="text_error_unexpected">An exception occurred. Please verify internet connectivity and restart the App</string>
 
 </resources>

@@ -1,17 +1,16 @@
-package invin.com.similarmovies;
+package invin.com.similarmovies.activity;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+
+import invin.com.similarmovies.R;
 
 /**
- * Activity to display the changelog.
+ * Activity to display the change log.
  */
 public class ChangelogActivity extends Activity {
 

@@ -1,4 +1,4 @@
-package invin.com.similarmovies;
+package invin.com.similarmovies.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import invin.com.similarmovies.R;
 
 /**
  * Display an 'About' screen with App information

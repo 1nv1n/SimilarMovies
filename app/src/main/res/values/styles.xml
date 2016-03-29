@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Default theme. -->
-    <style name="HoloLightDarkActionBarTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
 
     <!-- Optional theme. -->
     <style name="HoloDarkTheme" parent="android:Theme.Holo" />

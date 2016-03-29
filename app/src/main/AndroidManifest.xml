@@ -8,9 +8,9 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/HoloLightDarkActionBarTheme" >
+        android:theme="@style/AppTheme" >
         <activity
-            android:name=".HomeScreenActivity"
+            android:name=".activity.HomeScreenActivity"
             android:label="@string/title_activity_home_screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,29 +19,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DisplaySimilarMoviesListActivity"
+            android:name=".activity.DisplaySimilarMoviesListActivity"
             android:label="@string/title_activity_display_similar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="invin.com.similarmovies.HomeScreenActivity" />
+                android:value=".activity.HomeScreenActivity" />
         </activity>
         <activity
-            android:name=".DisplayMoviesForSelectionActivity"
+            android:name=".activity.DisplayMoviesForSelectionActivity"
             android:label="@string/title_activity_display_movies_for_selection" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="invin.com.similarmovies.HomeScreenActivity" />
+                android:value=".activity.HomeScreenActivity" />
         </activity>
         <activity
-            android:name=".NoResultsActivity"
+            android:name=".activity.NoResultsActivity"
             android:label="@string/title_activity_no_results" >
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".activity.AboutActivity"
             android:label="@string/title_activity_about_app" >
         </activity>
         <activity
-            android:name=".ChangelogActivity"
+            android:name=".activity.ChangelogActivity"
             android:label="@string/title_activity_changelog" >
         </activity>
     </application>

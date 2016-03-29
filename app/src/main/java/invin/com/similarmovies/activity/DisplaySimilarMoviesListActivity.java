@@ -1,4 +1,4 @@
-package invin.com.similarmovies;
+package invin.com.similarmovies.activity;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -16,58 +16,55 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
+import invin.com.similarmovies.BuildConfig;
+import invin.com.similarmovies.R;
 import invin.com.similarmovies.util.Constants;
+import invin.com.similarmovies.util.HTTPUtil;
 
 /**
  * {@link android.app.ListActivity} that takes in an ID passed through the intent to use the API
  *  to search & display a list of similar movies.
- * If none were found, this activity ends itself & calls {@link invin.com.similarmovies.NoResultsActivity}
+ * If none were found, this activity ends itself & calls {@link NoResultsActivity}
  */
 public class DisplaySimilarMoviesListActivity extends ListActivity{
 
-    //ProcessDialog while the list is generated
+    // ProcessDialog while the list is generated
     private ProgressDialog progressDialog;
 
-    //'Movies' JSONObject & JSONArray
-    JSONArray moviesJSON;
-    JSONObject movieJSONObj;
+    // 'Movies' JSONObject & JSONArray
+    private JSONArray moviesJSON;
+    private JSONObject movieJSONObj;
 
-    //HashMap for the movie ID, name * hash-code of the name
-    HashMap<Integer, List<String>> movieIDNameHashCodeMap;
+    // HashMap for the movie ID, name * hash-code of the name
+    private HashMap<Integer, List<String>> movieIDNameHashCodeMap;
 
-    //ArrayList for storing the movie names to display
-    ArrayList<String> movieListArray;
+    // ArrayList for storing the movie names to display
+    private ArrayList<String> movieListArray;
 
-    //Track whether a list of movies was returned or not
+    // Track whether a list of movies was returned or not
     private boolean isMoviesListNull;
-    //Verify that hash-coding served its purpose
+
+    // Verify that hash-coding served its purpose
     private boolean wasMovieMatched;
 
+    // Strings passed in from the previous activities
     private String apiKey;
     private String movieID;
     private String movieName;
 
     private int mProgressStatus = 0;
 
+    /**
+     * Initializes member variables
+     */
     public DisplaySimilarMoviesListActivity() {
         movieJSONObj = null;
         moviesJSON = null;
@@ -82,8 +79,10 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
         // Creating a progress dialog window
         progressDialog = new ProgressDialog(this);
+
         // Close the dialog window on pressing back button
         progressDialog.setCancelable(true);
+
         // Set it as a spinner
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
@@ -105,11 +104,11 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
         // Get the movie ID passed in
         Intent intent = getIntent();
-        apiKey = intent.getStringExtra(HomeScreenActivity.INTENT_KEY);
-        movieID = intent.getStringExtra(HomeScreenActivity.INTENT_MOVIE_ID);
-        movieName = intent.getStringExtra(HomeScreenActivity.INTENT_MOVIE_NAME);
+        apiKey = intent.getStringExtra(Constants.INTENT_KEY);
+        movieID = intent.getStringExtra(Constants.INTENT_MOVIE_ID);
+        movieName = intent.getStringExtra(Constants.INTENT_MOVIE_NAME);
 
-        //Start a new AsyncTaskRunner to ensure that we always process on a new thread
+        // Start a new AsyncTaskRunner to ensure that we always process on a new thread
         new AsyncTaskRunner().execute(apiKey, movieID, movieName);
     }
 
@@ -119,6 +118,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
         //Get the selected movie
         String selectedItem = (String) getListView().getItemAtPosition(position);
+
         //Alternative method to get the selected movie:
         //String selectedItem = (String) getListAdapter().getItem(position);
 
@@ -133,13 +133,13 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
 
                 Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_NAME, selectedItem);
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_KEY, apiKey);
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_NAME, selectedItem);
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_KEY, apiKey);
 
                 if (BuildConfig.DEBUG) {
-                    Log.d(Constants.LOG, "Selected Movie:"+selectedItem);
-                    Log.d(Constants.LOG, "ID:"+listOfIDsAndNames.get(0));
+                    Log.d(DisplayMoviesForSelectionActivity.class.getCanonicalName(), "Selected Movie:" + selectedItem); //$NON-NLS-1$
+                    Log.d(DisplayMoviesForSelectionActivity.class.getCanonicalName(), "Selected Movie ID:" + listOfIDsAndNames.get(0)); //$NON-NLS-1$
                 }
 
                 startActivity(intentSendMovieNameAndID);
@@ -147,10 +147,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         }
 
         if(!wasMovieMatched){
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Something went wrong, please restart the App",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.text_error_restart, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -167,94 +164,15 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
+            case R.id.action_settings:
+                Toast.makeText(getApplicationContext(), R.string.text_settings_disabled, Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.action_about:
-                openActionAbout();
+                startActivity(new Intent(getApplicationContext(), AboutActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /**
-     * Returns a {@link java.lang.String} containing the JSON consisting of similar movies returned
-     *  from the API based n the movie ID sent in
-     *
-     * @param movieID ({@link java.lang.String} consisting of the RottenTomatoes's ID of the movie)
-     * @param apiKey ({@link java.lang.String} consisting of the RottenTomatoes API Key)
-     * @return apiResponse ({@link java.lang.String} containing the API's response as a JSON)
-     */
-    private String returnSimilarMoviesJSON(String movieID, String apiKey) {
-        HttpClient defaultHTTPClient = new DefaultHttpClient();
-
-        String apiURLPrepender = "http://api.rottentomatoes.com/api/public/v1.0/movies";
-        String apiURLSimilarConnector = "similar.json?apikey=";
-        String forwardSlash = "/";
-        String apiResponse = "defaultAPIResponse";
-
-        HttpGet similarMoviesHTTPRequest = new HttpGet(
-                apiURLPrepender +
-                forwardSlash +
-                movieID +
-                forwardSlash +
-                apiURLSimilarConnector +
-                apiKey);
-
-        HttpResponse similarMoviesHTTPResponse;
-
-        InputStream inputStreamFromAPIResponse = null;
-        BufferedReader inputStreamBufferedReader = null;
-        InputStreamReader apiResponseInputStreamReader = null;
-
-        try {
-            similarMoviesHTTPResponse = defaultHTTPClient.execute(similarMoviesHTTPRequest);
-            //As long as we don't get a null response, continue processing
-            if(!similarMoviesHTTPResponse.equals(null)){
-                inputStreamFromAPIResponse = similarMoviesHTTPResponse.getEntity().getContent();
-
-                if ("gzip".equals(similarMoviesHTTPResponse.getEntity().getContentEncoding())){
-                    inputStreamFromAPIResponse = new GZIPInputStream(inputStreamFromAPIResponse);
-                }
-
-                apiResponseInputStreamReader = new InputStreamReader(inputStreamFromAPIResponse);
-                inputStreamBufferedReader = new BufferedReader(apiResponseInputStreamReader);
-
-                StringBuilder inputStreamStringBuilder = new StringBuilder();
-                String inputRead = inputStreamBufferedReader.readLine();
-
-                while(inputRead != null) {
-                    inputStreamStringBuilder.append(inputRead);
-                    inputRead = inputStreamBufferedReader.readLine();
-                }
-
-                apiResponse = inputStreamStringBuilder.toString();
-            }
-        } catch (ClientProtocolException e) {
-            if (BuildConfig.DEBUG) {
-                Log.d(Constants.LOG, "ClientProtocolException"+e.toString());
-            }
-        } catch (IOException e) {
-            if (BuildConfig.DEBUG) {
-                Log.d(Constants.LOG, "IOException"+e.toString());
-            }
-        } catch (Exception e) {
-            if (BuildConfig.DEBUG) {
-                Log.d(Constants.LOG, "Exception"+e.toString());
-            }
-        }
-        finally {
-            IOUtils.closeQuietly(inputStreamBufferedReader);
-            IOUtils.closeQuietly(inputStreamFromAPIResponse);
-            IOUtils.closeQuietly(apiResponseInputStreamReader);
-            return apiResponse;
-        }
-    }
-
-    /**
-     * Handle the 'About' action from the Action Bar
-     */
-    public void openActionAbout(){
-        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
-        startActivity(intentToShowAboutActivity);
     }
 
     /**
@@ -281,61 +199,51 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
             publishProgress("Processing...");
 
             // Get the JSON of similar movies
-            String similarMoviesJSON = returnSimilarMoviesJSON(movieID.trim(), apiKey);
-
+            String similarMoviesJSON = HTTPUtil.returnSearchResultOrSimilarMoviesJSON(Constants.SEARCH_BY_MOVIE_ID, movieID.trim(), apiKey);
             if (null != similarMoviesJSON) {
-                if(!similarMoviesJSON.equals("defaultAPIResponse")){
+                if(!similarMoviesJSON.equals("defaultAPIResponse")){ //$NON-NLS-1$
                     try {
                         JSONObject similarMoviesJSONObj = new JSONObject(similarMoviesJSON);
-                        moviesJSON = similarMoviesJSONObj.getJSONArray(HomeScreenActivity.TAG_MOVIES);
-                        int numberOfMoviesFound = moviesJSON.length();
+                        Log.i("DEBUG", similarMoviesJSONObj.toString());
+                        moviesJSON = similarMoviesJSONObj.getJSONArray(Constants.TAG_MOVIES);
 
-                        if (numberOfMoviesFound == 0){
+                        if (moviesJSON.length() == 0){
                             isMoviesListNull = true;
                             return noMoviesFound;
-                        }
-                        else{
+                        } else {
                             isMoviesListNull = false;
                             movieListArray = new ArrayList<>();
                             movieIDNameHashCodeMap = new HashMap<>();
 
-                            //Loop through all the movies in the JSON object
+                            // Loop through all the movies in the JSON object
                             for (int i = 0; i < moviesJSON.length(); i++) {
                                 movieJSONObj = moviesJSON.getJSONObject(i);
 
                                 List<String> listOfIDsAndNames = new ArrayList<>();
-                                listOfIDsAndNames.add(movieJSONObj.getString(HomeScreenActivity.TAG_ID));
-                                listOfIDsAndNames.add(movieJSONObj.getString(HomeScreenActivity.TAG_TITLE));
+                                listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_ID));
+                                listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_TITLE));
 
                                 movieIDNameHashCodeMap.put(
-                                        movieJSONObj.getString(HomeScreenActivity.TAG_TITLE).hashCode(),
+                                        movieJSONObj.getString(Constants.TAG_TITLE).hashCode(),
                                         listOfIDsAndNames
                                 );
 
-                                movieListArray.add(movieJSONObj.getString(HomeScreenActivity.TAG_TITLE));
+                                movieListArray.add(movieJSONObj.getString(Constants.TAG_TITLE));
                             }
                         }
-                    } catch (JSONException e) {
-                        if (BuildConfig.DEBUG) {
-                            Log.d(Constants.LOG, "JSONException"+e.toString());
-                        }
+                    } catch (JSONException jsonException) {
+                        Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), jsonException.getLocalizedMessage()); //$NON-NLS-1$
                         return errorOccurred;
-                    } catch (Exception e) {
-                        if (BuildConfig.DEBUG) {
-                            Log.d(Constants.LOG, "Exception"+e.toString());
-                        }
+                    } catch (Exception exception) {
+                        Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), exception.getLocalizedMessage()); //$NON-NLS-1$
                         return errorOccurred;
                     }
                 } else {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(Constants.LOG, "Default API response returned for ID:" + movieID);
-                    }
+                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "Default API response returned for ID:" + movieID); //$NON-NLS-1$
                     return errorOccurred;
                 }
             } else {
-                if (BuildConfig.DEBUG) {
-                    Log.d(Constants.LOG, "API Returned 'null' for ID:" + movieID);
-                }
+                Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "API Returned 'null' for ID:" + movieID); //$NON-NLS-1$
                 return errorOccurred;
             }
 
@@ -347,39 +255,27 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
          */
         @Override
         protected void onPostExecute(String backgroundProcessingResult) {
-            //progressDialog.setProgress(mProgressStatus);
-
+            progressDialog.setProgress(mProgressStatus);
             Intent intentToShowNoResults = new Intent(DisplaySimilarMoviesListActivity.this, NoResultsActivity.class);
 
             switch (backgroundProcessingResult){
                 case noMoviesFound:
-                    if (BuildConfig.DEBUG) {
-                        Log.d(Constants.LOG, noMoviesFound);
-                    }
+                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), noMoviesFound);
                     startActivity(intentToShowNoResults);
                     finish();
                     break;
 
                 case errorOccurred:
-                    if (BuildConfig.DEBUG) {
-                        Log.d(Constants.LOG, errorOccurred);
-                    }
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "An exception occurred. Please verify internet connectivity & restart the App",
-                            Toast.LENGTH_SHORT).show();
+                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), errorOccurred);
+                    Toast.makeText(getApplicationContext(), R.string.text_error_unexpected, Toast.LENGTH_SHORT).show();
                     break;
 
                 case endOfProcessing:
-                    if (BuildConfig.DEBUG) {
-                        Log.d(Constants.LOG, endOfProcessing);
-                    }
+                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), endOfProcessing);
                     break;
 
                 default:
-                    if (BuildConfig.DEBUG) {
-                        Log.d(Constants.LOG, "onPostExecute:default");
-                    }
+                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "onPostExecute:default"); //$NON-NLS-1$
                     startActivity(intentToShowNoResults);
                     break;
             }
@@ -400,6 +296,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
 
                 setListAdapter(movieListAdapter);
             }
+
             progressDialog.dismiss();
         }
 
@@ -423,7 +320,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
              * Things to be done while execution of long running operation is in progress.
              * ProgessDialog can be used here
              */
-            //progressDialog.setProgress(mProgressStatus);
+            progressDialog.setProgress(mProgressStatus);
         }
     }
 }

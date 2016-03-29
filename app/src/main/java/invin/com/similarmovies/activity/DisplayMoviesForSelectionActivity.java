@@ -1,4 +1,4 @@
-package invin.com.similarmovies;
+package invin.com.similarmovies.activity;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -16,25 +16,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import invin.com.similarmovies.BuildConfig;
+import invin.com.similarmovies.R;
 import invin.com.similarmovies.util.Constants;
 
 /**
- * If the search for a movie from {@link invin.com.similarmovies.HomeScreenActivity} yields more
- * than one result, {@link invin.com.similarmovies.DisplayMoviesForSelectionActivity} will be called
- * to display a list of the movies returned by the RottenTomatoes API
+ * If the search for a movie from {@link HomeScreenActivity} yields more than one result,
+ * {@link DisplayMoviesForSelectionActivity} will be called to display a list of the movies
+ * returned by the RottenTomatoes API
  */
 public class DisplayMoviesForSelectionActivity extends ListActivity {
 
-    //Hashmap of the movie name, it's RottenTomatoes ID with the hash code of the name as the key
+    // Hash map of the movie name, it's RottenTomatoes ID with the hash code of the name as the key
     private HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<Integer, List<String>>();
 
-    //Store the API key (To pass on to the next activity)
+    // Store the API key (To pass on to the next activity)
     private String apiKey;
 
-    //Verify that hash-coding served its purpose
+    // Verify that hash-coding served its purpose
     private boolean wasMovieMatched;
 
-    ArrayList<String> movieListArray;
+    // List of movies
+    private ArrayList<String> movieListArray;
 
     public DisplayMoviesForSelectionActivity() {
         wasMovieMatched = false;
@@ -57,8 +60,8 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
 
         // Get the movie ID, name & the API key passed in from the Home Screen
         Intent intentSendMovieIDsAndNames = getIntent();
-        movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intentSendMovieIDsAndNames.getSerializableExtra(HomeScreenActivity.INTENT_MOVIE_ID_NAME);
-        apiKey = intentSendMovieIDsAndNames.getStringExtra(HomeScreenActivity.INTENT_KEY);
+        movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intentSendMovieIDsAndNames.getSerializableExtra(Constants.INTENT_MOVIE_ID_NAME);
+        apiKey = intentSendMovieIDsAndNames.getStringExtra(Constants.INTENT_KEY);
 
         movieListArray = new ArrayList<>();
         for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
@@ -88,8 +91,11 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
+            case R.id.action_settings:
+                Toast.makeText(getApplicationContext(), R.string.text_settings_disabled, Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.action_about:
-                openActionAbout();
+                startActivity(new Intent(getApplicationContext(), AboutActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -102,6 +108,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
 
         // Get the selected movie
         String selectedItem = (String) getListView().getItemAtPosition(position);
+
         // Alternative method to get the selected movie:
         // String selectedItem = (String) getListAdapter().getItem(position);
 
@@ -116,13 +123,13 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
 
                 Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesListActivity.class);
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_NAME, selectedItem);
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
-                intentSendMovieNameAndID.putExtra(HomeScreenActivity.INTENT_KEY, apiKey);
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_NAME, selectedItem);
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
+                intentSendMovieNameAndID.putExtra(Constants.INTENT_KEY, apiKey);
 
                 if (BuildConfig.DEBUG) {
-                    Log.d(Constants.LOG, "Selected Movie:"+selectedItem);
-                    Log.d(Constants.LOG, "Selected Movie ID:"+listOfIDsAndNames.get(0));
+                    Log.d(DisplayMoviesForSelectionActivity.class.getCanonicalName(), "Selected Movie:" + selectedItem); //$NON-NLS-1$
+                    Log.d(DisplayMoviesForSelectionActivity.class.getCanonicalName(), "Selected Movie ID:" + listOfIDsAndNames.get(0)); //$NON-NLS-1$
                 }
 
                 startActivity(intentSendMovieNameAndID);
@@ -131,18 +138,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         }
 
         if(!wasMovieMatched){
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Something went wrong, please restart the App",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.text_error_restart, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * Handle the 'About' action from the Action Bar
-     */
-    public void openActionAbout(){
-        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
-        startActivity(intentToShowAboutActivity);
     }
 }

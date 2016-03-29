@@ -1,4 +1,4 @@
-package invin.com.similarmovies;
+package invin.com.similarmovies.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import invin.com.similarmovies.R;
 
 /**
  * Activity to display a 'No Results' screen.
@@ -44,34 +46,14 @@ public class NoResultsActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                openActionSettings();
-//                return true;
+            case R.id.action_settings:
+                Toast.makeText(getApplicationContext(), R.string.text_settings_disabled, Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.action_about:
-                openActionAbout();
+                startActivity(new Intent(getApplicationContext(), AboutActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    //TODO: Externalize this method into a Util package
-    /**
-     * Handle the 'Settings' action from the Action Bar
-     */
-//    public void openActionSettings(){
-//        Toast.makeText(
-//                getApplicationContext(),
-//                "Sorry, Settings are currently disabled",
-//                Toast.LENGTH_SHORT).show();
-//    }
-
-    //TODO: Externalize this method into a Util package
-    /**
-     * Handle the 'About' action from the Action Bar
-     */
-    public void openActionAbout(){
-        Intent intentToShowAboutActivity = new Intent(this, AboutActivity.class);
-        startActivity(intentToShowAboutActivity);
     }
 }
