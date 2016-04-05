@@ -9,9 +9,20 @@
     android:paddingLeft="@dimen/linear_layout_padding_left"
     android:paddingRight="@dimen/linear_layout_padding_right" >
 
-    <TextView
+    <!-- With bullet point -->
+    <!-- TextView
         android:id="@+id/movieTitle"
         android:drawableLeft="@drawable/bullet"
+        android:drawablePadding="4dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:paddingBottom="2dip"
+        android:textColor="@color/black"
+        android:textStyle="bold" / -->
+
+    <TextView
+        android:id="@+id/movieTitle"
         android:drawablePadding="4dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
