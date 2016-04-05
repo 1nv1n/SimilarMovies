@@ -16,12 +16,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import invin.com.similarmovies.R;
@@ -226,23 +228,26 @@ public class SearchScreenActivity extends Activity {
                                 return oneResultFound;
                             } else {
                                 // Send all the found movies to display for selection stored in a HashMap
-                                HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<>();
+                                LinkedHashMap<Integer, List<String>> movieIDTitleHashMap = new LinkedHashMap<>();
 
                                 JSONObject movieJSONObj;
                                 for (int currentMovie = 0; currentMovie < moviesJSONArray.length(); currentMovie++) {
                                     movieJSONObj = moviesJSONArray.getJSONObject(currentMovie);
 
-                                    List<String> listOfIDsAndNames = new ArrayList<>();
-                                    listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_ID));
-                                    listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_TITLE));
+                                    List<String> movieIDTitleList = new ArrayList<>();
+                                    movieIDTitleList.add(movieJSONObj.getString(Constants.TAG_ID));
+                                    movieIDTitleList.add(movieJSONObj.getString(Constants.TAG_TITLE));
 
-                                    movieIDNameHashCodeMap.put(
-                                        movieJSONObj.getString(Constants.TAG_TITLE).hashCode(),
-                                        listOfIDsAndNames);
+                                    movieIDTitleHashMap.put(
+                                            movieJSONObj.getString(Constants.TAG_TITLE).hashCode(),
+                                            movieIDTitleList);
                                 }
 
+                                Gson movieIDTitleGSON = new Gson();
+                                String gsonString = movieIDTitleGSON.toJson(movieIDTitleHashMap);
+
                                 Intent intentSendMovieIDsAndNames = new Intent(SearchScreenActivity.this, DisplayMoviesForSelectionActivity.class);
-                                intentSendMovieIDsAndNames.putExtra(Constants.INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
+                                intentSendMovieIDsAndNames.putExtra(Constants.INTENT_MOVIE_ID_NAME, gsonString);
                                 intentSendMovieIDsAndNames.putExtra(Constants.INTENT_KEY, apiKey);
                                 startActivity(intentSendMovieIDsAndNames);
 

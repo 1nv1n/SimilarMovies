@@ -12,8 +12,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import invin.com.similarmovies.BuildConfig;
@@ -28,7 +32,7 @@ import invin.com.similarmovies.util.Constants;
 public class DisplayMoviesForSelectionActivity extends ListActivity {
 
     // Hash map of the movie name, it's RottenTomatoes ID with the hash code of the name as the key
-    private HashMap<Integer, List<String>> movieIDNameHashCodeMap = new HashMap<Integer, List<String>>();
+    private LinkedHashMap<Integer, List<String>> movieIDTitleHashMap = new LinkedHashMap<Integer, List<String>>();
 
     // Store the API key (To pass on to the next activity)
     private String apiKey;
@@ -60,11 +64,16 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
 
         // Get the movie ID, name & the API key passed in from the Home Screen
         Intent intentSendMovieIDsAndNames = getIntent();
-        movieIDNameHashCodeMap = (HashMap<Integer, List<String>>) intentSendMovieIDsAndNames.getSerializableExtra(Constants.INTENT_MOVIE_ID_NAME);
+
+        String gsonString =  getIntent().getStringExtra(Constants.INTENT_MOVIE_ID_NAME);
+        Gson movieIDTitleGSON = new Gson();
+
+        Type entityType = new TypeToken<LinkedHashMap<Integer, List<String>>>(){}.getType();
+        movieIDTitleHashMap = movieIDTitleGSON.fromJson(gsonString, entityType);
         apiKey = intentSendMovieIDsAndNames.getStringExtra(Constants.INTENT_KEY);
 
         movieListArray = new ArrayList<>();
-        for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
+        for (LinkedHashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDTitleHashMap.entrySet()) {
             List<String> listOfIDsAndNames = hashMovieEntry.getValue();
             movieListArray.add(listOfIDsAndNames.get(1));
         }
@@ -117,7 +126,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
          *  we need to match the hash code of the selected movie with ones from the list
          *  sent from the previous activity
          */
-        for (HashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDNameHashCodeMap.entrySet()) {
+        for (LinkedHashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDTitleHashMap.entrySet()) {
             if(selectedItem.hashCode() == hashMovieEntry.getKey()){
                 wasMovieMatched = true;
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
