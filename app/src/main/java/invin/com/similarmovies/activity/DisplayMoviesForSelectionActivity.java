@@ -21,7 +21,7 @@ import invin.com.similarmovies.R;
 import invin.com.similarmovies.util.Constants;
 
 /**
- * If the search for a movie from {@link HomeScreenActivity} yields more than one result,
+ * If the search for a movie from {@link SearchScreenActivity} yields more than one result,
  * {@link DisplayMoviesForSelectionActivity} will be called to display a list of the movies
  * returned by the RottenTomatoes API
  */
@@ -122,7 +122,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
                 wasMovieMatched = true;
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
 
-                Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesActivity.class);
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_NAME, selectedItem);
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_KEY, apiKey);

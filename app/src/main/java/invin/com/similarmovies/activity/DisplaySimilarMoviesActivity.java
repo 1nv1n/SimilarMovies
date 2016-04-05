@@ -34,7 +34,7 @@ import invin.com.similarmovies.util.HTTPUtil;
  *  to search & display a list of similar movies.
  * If none were found, this activity ends itself & calls {@link NoResultsActivity}
  */
-public class DisplaySimilarMoviesListActivity extends ListActivity{
+public class DisplaySimilarMoviesActivity extends ListActivity{
 
     // ProcessDialog while the list is generated
     private ProgressDialog progressDialog;
@@ -65,7 +65,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
     /**
      * Initializes member variables
      */
-    public DisplaySimilarMoviesListActivity() {
+    public DisplaySimilarMoviesActivity() {
         movieJSONObj = null;
         moviesJSON = null;
         isMoviesListNull = true;
@@ -132,7 +132,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
                 wasMovieMatched = true;
                 List<String> listOfIDsAndNames = hashMovieEntry.getValue();
 
-                Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesListActivity.class);
+                Intent intentSendMovieNameAndID = new Intent(this, DisplaySimilarMoviesActivity.class);
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_NAME, selectedItem);
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_MOVIE_ID, listOfIDsAndNames.get(0));
                 intentSendMovieNameAndID.putExtra(Constants.INTENT_KEY, apiKey);
@@ -232,18 +232,18 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
                             }
                         }
                     } catch (JSONException jsonException) {
-                        Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), jsonException.getLocalizedMessage()); //$NON-NLS-1$
+                        Log.e(DisplaySimilarMoviesActivity.class.getCanonicalName(), jsonException.getLocalizedMessage()); //$NON-NLS-1$
                         return errorOccurred;
                     } catch (Exception exception) {
-                        Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), exception.getLocalizedMessage()); //$NON-NLS-1$
+                        Log.e(DisplaySimilarMoviesActivity.class.getCanonicalName(), exception.getLocalizedMessage()); //$NON-NLS-1$
                         return errorOccurred;
                     }
                 } else {
-                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "Default API response returned for ID:" + movieID); //$NON-NLS-1$
+                    Log.d(DisplaySimilarMoviesActivity.class.getCanonicalName(), "Default API response returned for ID:" + movieID); //$NON-NLS-1$
                     return errorOccurred;
                 }
             } else {
-                Log.e(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "API Returned 'null' for ID:" + movieID); //$NON-NLS-1$
+                Log.e(DisplaySimilarMoviesActivity.class.getCanonicalName(), "API Returned 'null' for ID:" + movieID); //$NON-NLS-1$
                 return errorOccurred;
             }
 
@@ -256,26 +256,26 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
         @Override
         protected void onPostExecute(String backgroundProcessingResult) {
             progressDialog.setProgress(mProgressStatus);
-            Intent intentToShowNoResults = new Intent(DisplaySimilarMoviesListActivity.this, NoResultsActivity.class);
+            Intent intentToShowNoResults = new Intent(DisplaySimilarMoviesActivity.this, NoResultsActivity.class);
 
             switch (backgroundProcessingResult){
                 case noMoviesFound:
-                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), noMoviesFound);
+                    Log.d(DisplaySimilarMoviesActivity.class.getCanonicalName(), noMoviesFound);
                     startActivity(intentToShowNoResults);
                     finish();
                     break;
 
                 case errorOccurred:
-                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), errorOccurred);
+                    Log.d(DisplaySimilarMoviesActivity.class.getCanonicalName(), errorOccurred);
                     Toast.makeText(getApplicationContext(), R.string.text_error_unexpected, Toast.LENGTH_SHORT).show();
                     break;
 
                 case endOfProcessing:
-                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), endOfProcessing);
+                    Log.d(DisplaySimilarMoviesActivity.class.getCanonicalName(), endOfProcessing);
                     break;
 
                 default:
-                    Log.d(DisplaySimilarMoviesListActivity.class.getCanonicalName(), "onPostExecute:default"); //$NON-NLS-1$
+                    Log.d(DisplaySimilarMoviesActivity.class.getCanonicalName(), "onPostExecute:default"); //$NON-NLS-1$
                     startActivity(intentToShowNoResults);
                     break;
             }
@@ -289,7 +289,7 @@ public class DisplaySimilarMoviesListActivity extends ListActivity{
                 similarMoviesTextView.setTypeface(null, Typeface.BOLD);
 
                 ArrayAdapter<String> movieListAdapter = new ArrayAdapter<>(
-                        DisplaySimilarMoviesListActivity.this,
+                        DisplaySimilarMoviesActivity.this,
                         R.layout.movies_list,
                         R.id.movieTitle,
                         movieListArray);

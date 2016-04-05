@@ -38,7 +38,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  *
  * @author Neil Pathare
  */
-public class HomeScreenActivity extends Activity {
+public class SearchScreenActivity extends Activity {
 
     // To show a loading indicator between Activities whilst data processing is ongoing
     private ProgressBar spinner;
@@ -50,7 +50,7 @@ public class HomeScreenActivity extends Activity {
     private EditText editTextMovieName;
 
     //Basic constructor
-    public HomeScreenActivity() {
+    public SearchScreenActivity() {
         moviesJSONArray = null;
     }
 
@@ -63,7 +63,7 @@ public class HomeScreenActivity extends Activity {
         try {
             getActionBar().setDisplayHomeAsUpEnabled(false);
         } catch (NullPointerException nullPointerException) {
-            Log.e(HomeScreenActivity.class.getCanonicalName(), nullPointerException.getLocalizedMessage());
+            Log.e(SearchScreenActivity.class.getCanonicalName(), nullPointerException.getLocalizedMessage());
         }
 
         // Create a loading spinner & leave it hidden until required
@@ -180,7 +180,7 @@ public class HomeScreenActivity extends Activity {
 
         /**
          * This method will attempt to retrieve the ID of the entered movie & send that to
-         *  {@link DisplaySimilarMoviesListActivity} to search for & display
+         *  {@link DisplaySimilarMoviesActivity} to search for & display
          *  similar movies.
          * If multiple movies are returned based on the movie name input, IDs & names will be sent to
          *  {@link DisplayMoviesForSelectionActivity} for the user to select the
@@ -194,9 +194,9 @@ public class HomeScreenActivity extends Activity {
             publishProgress("Processing...");
 
             // Get the API key from the Assets folder
-            String apiKey = PropertyUtil.returnRottenTomatoesAPIKeyFromAssets(HomeScreenActivity.this);
+            String apiKey = PropertyUtil.returnRottenTomatoesAPIKeyFromAssets(SearchScreenActivity.this);
             if(isBlank(apiKey)){
-                Log.e(HomeScreenActivity.class.getCanonicalName(), "apiKey is Blank");
+                Log.e(SearchScreenActivity.class.getCanonicalName(), "apiKey is Blank");
             }
             else{
                 String movieSearchResultJSON = HTTPUtil.returnSearchResultOrSimilarMoviesJSON(Constants.SEARCH_BY_MOVIE_NAME, enteredName, apiKey);
@@ -209,7 +209,7 @@ public class HomeScreenActivity extends Activity {
                             return noMoviesFound;
                         } else {
                             if (moviesJSONArray.length() == 1) {
-                                Intent intentSendMovieIDAndName = new Intent(HomeScreenActivity.this, DisplaySimilarMoviesListActivity.class);
+                                Intent intentSendMovieIDAndName = new Intent(SearchScreenActivity.this, DisplaySimilarMoviesActivity.class);
 
                                 // Since we know there's only one movie; get the details from the first JSON object
                                 intentSendMovieIDAndName.putExtra(
@@ -241,7 +241,7 @@ public class HomeScreenActivity extends Activity {
                                         listOfIDsAndNames);
                                 }
 
-                                Intent intentSendMovieIDsAndNames = new Intent(HomeScreenActivity.this, DisplayMoviesForSelectionActivity.class);
+                                Intent intentSendMovieIDsAndNames = new Intent(SearchScreenActivity.this, DisplayMoviesForSelectionActivity.class);
                                 intentSendMovieIDsAndNames.putExtra(Constants.INTENT_MOVIE_ID_NAME, movieIDNameHashCodeMap);
                                 intentSendMovieIDsAndNames.putExtra(Constants.INTENT_KEY, apiKey);
                                 startActivity(intentSendMovieIDsAndNames);
@@ -250,12 +250,12 @@ public class HomeScreenActivity extends Activity {
                             }
                         }
                     } catch (JSONException jsonException) {
-                        Log.e(HomeScreenActivity.class.getCanonicalName(), jsonException.getLocalizedMessage());
+                        Log.e(SearchScreenActivity.class.getCanonicalName(), jsonException.getLocalizedMessage());
                     } catch (Exception exception) {
-                        Log.e(HomeScreenActivity.class.getCanonicalName(), exception.getLocalizedMessage());
+                        Log.e(SearchScreenActivity.class.getCanonicalName(), exception.getLocalizedMessage());
                     }
                 } else {
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), "API Returned 'null' for:" +enteredName); //$NON-NLS-1$
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), "API Returned 'null' for:" +enteredName); //$NON-NLS-1$
                     return noMoviesFound;
                 }
             }
@@ -267,24 +267,24 @@ public class HomeScreenActivity extends Activity {
          */
         @Override
         protected void onPostExecute(String backgroundProcessingResult) {
-            Intent intentToShowNoResults = new Intent(HomeScreenActivity.this, NoResultsActivity.class);
+            Intent intentToShowNoResults = new Intent(SearchScreenActivity.this, NoResultsActivity.class);
 
             switch (backgroundProcessingResult){
                 case noMoviesFound:
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), noMoviesFound);
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), noMoviesFound);
                     startActivity(intentToShowNoResults);
                     break;
                 case oneResultFound:
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), oneResultFound);
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), oneResultFound);
                     break;
                 case multipleResultsFound:
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), multipleResultsFound);
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), multipleResultsFound);
                     break;
                 case endOfProcessing:
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), endOfProcessing);
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), endOfProcessing);
                     break;
                 default:
-                    Log.d(HomeScreenActivity.class.getCanonicalName(), "onPostExecute:default"); //$NON-NLS-1$
+                    Log.d(SearchScreenActivity.class.getCanonicalName(), "onPostExecute:default"); //$NON-NLS-1$
                     startActivity(intentToShowNoResults);
                     break;
             }

@@ -129,11 +129,11 @@ public final class HTTPUtil {
 //                apiResponse = inputStreamStringBuilder.toString();
 //            }
 //        } catch (ClientProtocolException e) {
-//            Log.d(HomeScreenActivity.class.getCanonicalName(), "ClientProtocolException:" + e.toString());
+//            Log.d(SearchScreenActivity.class.getCanonicalName(), "ClientProtocolException:" + e.toString());
 //        } catch (IOException ioException) {
-//            Log.d(HomeScreenActivity.class.getCanonicalName(), ioException.getLocalizedMessage());
+//            Log.d(SearchScreenActivity.class.getCanonicalName(), ioException.getLocalizedMessage());
 //        } catch (Exception exception) {
-//            Log.d(HomeScreenActivity.class.getCanonicalName(), exception.getLocalizedMessage());
+//            Log.d(SearchScreenActivity.class.getCanonicalName(), exception.getLocalizedMessage());
 //        } finally {
 //            IOUtils.closeQuietly(inputStreamFromAPIResponse);
 //            IOUtils.closeQuietly(apiResponseInputStreamReader);
