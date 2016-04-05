@@ -1,4 +1,5 @@
 .idea
+.idea/compiler.xml
 .DS_Store
 /app/src/main/assets/key.properties
 /app/app-release.apk

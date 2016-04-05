@@ -1,0 +1,25 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <!-- Activity Margins -->
+    <dimen name="activity_horizontal_margin">30dp</dimen>
+    <dimen name="activity_horizontal_margin_left">20dp</dimen>
+    <dimen name="activity_horizontal_margin_right">20dp</dimen>
+    <dimen name="activity_vertical_margin">30dp</dimen>
+    <dimen name="activity_vertical_margin_top">20dp</dimen>
+    <dimen name="activity_vertical_margin_bottom">20dp</dimen>
+
+    <!-- Layout Padding -->
+    <dimen name="linear_layout_padding_left">10dp</dimen>
+    <dimen name="linear_layout_padding_right">10dp</dimen>
+    <dimen name="linear_layout_padding_top">10dp</dimen>
+    <dimen name="linear_layout_padding_bottom">10dp</dimen>
+
+    <!-- Table View Padding -->
+    <!-- Changelog Table -->
+    <dimen name="table_row_padding">2dip</dimen>
+    <dimen name="table_row_line_height">2dip</dimen>
+
+    <!-- Bullet -->
+    <dimen name="bullet_width">6dp</dimen>
+    <dimen name="bullet_height">6dp</dimen>
+</resources>
