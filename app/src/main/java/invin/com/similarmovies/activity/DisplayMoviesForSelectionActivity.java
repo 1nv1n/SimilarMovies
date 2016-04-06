@@ -40,9 +40,6 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
     // Verify that hash-coding served its purpose
     private boolean wasMovieMatched;
 
-    // List of movies
-    private ArrayList<String> movieListArray;
-
     public DisplayMoviesForSelectionActivity() {
         wasMovieMatched = false;
     }
@@ -72,7 +69,7 @@ public class DisplayMoviesForSelectionActivity extends ListActivity {
         movieIDTitleHashMap = movieIDTitleGSON.fromJson(gsonString, entityType);
         apiKey = intentSendMovieIDsAndNames.getStringExtra(Constants.INTENT_KEY);
 
-        movieListArray = new ArrayList<>();
+        ArrayList<String> movieListArray = new ArrayList<>();
         for (LinkedHashMap.Entry<Integer, List<String>> hashMovieEntry : movieIDTitleHashMap.entrySet()) {
             List<String> listOfIDsAndNames = hashMovieEntry.getValue();
             movieListArray.add(listOfIDsAndNames.get(1));
