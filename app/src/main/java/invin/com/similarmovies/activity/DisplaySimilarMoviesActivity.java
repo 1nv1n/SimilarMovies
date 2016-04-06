@@ -3,7 +3,6 @@ package invin.com.similarmovies.activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -185,7 +183,6 @@ public class DisplaySimilarMoviesActivity extends ListActivity{
         private final String noMoviesFound = "noMoviesFound";
         private final String errorOccurred = "errorOccurred";
         private final String endOfProcessing = "endOfProcessing";
-        private final String multipleResultsFound = "multipleResultsFound";
 
         /**
          * This method will attempt to retrieve a list of movies similar to the ID of the movie
@@ -219,13 +216,13 @@ public class DisplaySimilarMoviesActivity extends ListActivity{
                             for (int i = 0; i < moviesJSON.length(); i++) {
                                 movieJSONObj = moviesJSON.getJSONObject(i);
 
-                                List<String> listOfIDsAndNames = new ArrayList<>();
-                                listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_ID));
-                                listOfIDsAndNames.add(movieJSONObj.getString(Constants.TAG_TITLE));
+                                List<String> movieIDTitleList = new ArrayList<>();
+                                movieIDTitleList.add(movieJSONObj.getString(Constants.TAG_ID));
+                                movieIDTitleList.add(movieJSONObj.getString(Constants.TAG_TITLE));
 
                                 movieIDNameHashCodeMap.put(
                                         movieJSONObj.getString(Constants.TAG_TITLE).hashCode(),
-                                        listOfIDsAndNames
+                                        movieIDTitleList
                                 );
 
                                 movieListArray.add(movieJSONObj.getString(Constants.TAG_TITLE));
@@ -284,10 +281,6 @@ public class DisplaySimilarMoviesActivity extends ListActivity{
              * If movieList is not null, we should update the parsed JSON data into the ListView
              */
             if(!(isMoviesListNull)){
-                TextView similarMoviesTextView = (TextView) findViewById(R.id.similarMoviesTextView);
-                similarMoviesTextView.setText("Movies similar to: "+movieName);
-                similarMoviesTextView.setTypeface(null, Typeface.BOLD);
-
                 ArrayAdapter<String> movieListAdapter = new ArrayAdapter<>(
                         DisplaySimilarMoviesActivity.this,
                         R.layout.movies_list,
