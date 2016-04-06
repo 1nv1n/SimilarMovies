@@ -28,6 +28,6 @@
         android:layout_height="wrap_content"
         android:padding="4dp"
         android:paddingBottom="2dip"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textStyle="bold" />
 </LinearLayout>

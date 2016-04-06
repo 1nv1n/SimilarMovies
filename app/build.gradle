@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 7
-        versionName "1.0.7"
+        versionName "1.0.9"
     }
     buildTypes {
         release {
@@ -29,4 +29,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.0.+'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile 'com.google.code.gson:gson:2.6.2'
 }

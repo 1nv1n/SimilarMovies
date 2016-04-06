@@ -59,7 +59,7 @@ public class SearchScreenActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_screen);
+        setContentView(R.layout.activity_search_screen);
 
         // Default 'Up - Home' button functionality is intentionally disabled
         try {
