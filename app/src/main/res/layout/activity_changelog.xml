@@ -43,7 +43,7 @@
                 android:text="1.0.7"
                 android:padding="@dimen/table_row_padding" />
             <TextView
-                android:text="Updated to use java.net.URL over Apache's HTTPClient (Unsupported on Android 6+)"
+                android:text="Updated to use java.net.URL over Apache's HTTPClient which is unsupported on SDK 23+"
                 android:padding="@dimen/table_row_padding"
                 android:layout_width="wrap_content"
                 android:layout_weight="1" />
