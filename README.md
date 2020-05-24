@@ -25,3 +25,33 @@
 ## Find Similar Movies
 
  An App that makes use of the RottenTomatoes API to search for movies similar to a given movie.
+
+### Usage
+
+<p align="center">
+ <table align="center">
+  <tr align="center">
+    <td><b>Home</b></td>
+    <td><b>Search</b></td>
+    <td><b>Sort</b></td>
+    <td><b>Found!</b></td>
+  </tr>
+  <tr>
+    <td valign="top"><img align="center" src="./assets/1.png" width="225"></td>
+    <td valign="top"><img align="center" src="./assets/2.png" width="225"></td>
+    <td valign="top"><img align="center" src="./assets/3.png" width="225"></td>
+    <td valign="top"><img align="center" src="./assets/4.png" width="225"></td>
+  </tr>
+ </table>
+ 
+  <table align="center">
+  <tr align="center">
+    <td><b>Changelog</b></td>
+    <td><b>About</b></td>
+  </tr>
+  <tr align="center">
+    <td valign="top"><img align="center" src="./assets/5.png" width="225"></td>
+    <td valign="top"><img align="center" src="./assets/6.png" width="225"></td>
+  </tr>
+ </table>
+</p>
